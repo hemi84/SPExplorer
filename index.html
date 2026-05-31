@@ -1,0 +1,1904 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SPExplorer — Turning Self-Potential Data Into Discovery</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@300;400;500;600;700&family=Share+Tech+Mono&family=Crimson+Pro:ital,wght@0,300;0,400;1,300&family=Exo+2:wght@100;200;300;400;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #020810;
+    --bg2: #040d1a;
+    --bg3: #071428;
+    --gold: #f0a500;
+    --gold2: #ffc940;
+    --gold-dim: #a07010;
+    --cyan: #00d4e8;
+    --cyan2: #00f5ff;
+    --teal: #0a8a9a;
+    --red: #e85530;
+    --magenta: #d400e8;
+    --green: #00e890;
+    --text: #c8d8e8;
+    --text-dim: #6888a8;
+    --border: rgba(0,212,232,0.18);
+    --border-gold: rgba(240,165,0,0.25);
+    --grid: rgba(0,212,232,0.04);
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Exo 2', sans-serif;
+    font-weight: 300;
+    overflow-x: hidden;
+    cursor: default;
+  }
+
+  /* ── GRID BACKGROUND ── */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(var(--grid) 1px, transparent 1px),
+      linear-gradient(90deg, var(--grid) 1px, transparent 1px);
+    background-size: 48px 48px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* ── NAV ── */
+  nav {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    z-index: 100;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 3rem;
+    height: 70px;
+    background: rgba(2,8,16,0.88);
+    backdrop-filter: blur(20px);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .nav-logo {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    text-decoration: none;
+  }
+
+  .nav-logo img {
+    height: 42px;
+    width: auto;
+    filter: drop-shadow(0 0 8px rgba(0,212,232,0.4));
+  }
+
+  .nav-links {
+    display: flex;
+    gap: 2rem;
+    list-style: none;
+  }
+
+  .nav-links a {
+    color: var(--text-dim);
+    text-decoration: none;
+    font-family: 'Rajdhani', sans-serif;
+    font-weight: 600;
+    font-size: 0.85rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    transition: color 0.2s;
+  }
+
+  .nav-links a:hover { color: var(--cyan2); }
+
+  .nav-cta {
+    background: transparent;
+    border: 1px solid var(--gold);
+    color: var(--gold);
+    padding: 8px 22px;
+    font-family: 'Rajdhani', sans-serif;
+    font-weight: 700;
+    font-size: 0.82rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    cursor: pointer;
+    text-decoration: none;
+    transition: all 0.25s;
+    clip-path: polygon(8px 0%, 100% 0%, calc(100% - 8px) 100%, 0% 100%);
+  }
+
+  .nav-cta:hover {
+    background: var(--gold);
+    color: var(--bg);
+  }
+
+  /* ── HERO ── */
+  .hero {
+    position: relative;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 7rem 2rem 4rem;
+    overflow: hidden;
+    z-index: 1;
+  }
+
+  .hero-glow {
+    position: absolute;
+    width: 800px;
+    height: 800px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(0,212,232,0.06) 0%, transparent 70%);
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    pointer-events: none;
+  }
+
+  .hero-glow2 {
+    position: absolute;
+    width: 500px;
+    height: 500px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(240,165,0,0.08) 0%, transparent 70%);
+    bottom: 10%;
+    left: 20%;
+    pointer-events: none;
+  }
+
+  .hero-tag {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.72rem;
+    color: var(--cyan);
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    margin-bottom: 1.2rem;
+    opacity: 0.8;
+    animation: fadeUp 0.8s ease both;
+  }
+
+  .hero-logo {
+    margin-bottom: 1.5rem;
+    animation: fadeUp 0.9s 0.1s ease both;
+  }
+
+  .hero-logo img {
+    height: 130px;
+    width: auto;
+    filter: drop-shadow(0 0 30px rgba(0,212,232,0.35)) drop-shadow(0 0 60px rgba(240,165,0,0.2));
+    transition: filter 0.3s;
+  }
+
+  .hero-logo img:hover {
+    filter: drop-shadow(0 0 40px rgba(0,212,232,0.6)) drop-shadow(0 0 80px rgba(240,165,0,0.35));
+  }
+
+  h1.hero-title {
+    font-family: 'Rajdhani', sans-serif;
+    font-size: clamp(3rem, 7vw, 5.5rem);
+    font-weight: 700;
+    line-height: 1;
+    letter-spacing: 0.04em;
+    animation: fadeUp 1s 0.2s ease both;
+  }
+
+  h1.hero-title span.sp { color: var(--cyan2); }
+  h1.hero-title span.ex { color: var(--gold2); }
+
+  .hero-slogan {
+    font-family: 'Crimson Pro', serif;
+    font-style: italic;
+    font-size: clamp(1rem, 2vw, 1.35rem);
+    color: var(--text-dim);
+    margin-top: 0.6rem;
+    letter-spacing: 0.05em;
+    animation: fadeUp 1s 0.3s ease both;
+  }
+
+  .hero-slogan em { color: var(--gold); font-style: normal; }
+
+  .hero-desc {
+    max-width: 640px;
+    margin: 2rem auto 0;
+    font-size: 1rem;
+    line-height: 1.7;
+    color: var(--text-dim);
+    animation: fadeUp 1s 0.45s ease both;
+  }
+
+  .hero-btns {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    margin-top: 2.5rem;
+    flex-wrap: wrap;
+    animation: fadeUp 1s 0.55s ease both;
+  }
+
+  .btn-primary {
+    background: linear-gradient(135deg, var(--cyan), var(--teal));
+    color: var(--bg);
+    border: none;
+    padding: 14px 36px;
+    font-family: 'Rajdhani', sans-serif;
+    font-weight: 700;
+    font-size: 0.92rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    cursor: pointer;
+    text-decoration: none;
+    clip-path: polygon(10px 0%, 100% 0%, calc(100% - 10px) 100%, 0% 100%);
+    transition: all 0.25s;
+    display: inline-block;
+  }
+
+  .btn-primary:hover {
+    background: linear-gradient(135deg, var(--cyan2), var(--cyan));
+    transform: translateY(-2px);
+    box-shadow: 0 8px 30px rgba(0,212,232,0.4);
+  }
+
+  .btn-outline {
+    background: transparent;
+    color: var(--gold);
+    border: 1px solid var(--border-gold);
+    padding: 13px 36px;
+    font-family: 'Rajdhani', sans-serif;
+    font-weight: 700;
+    font-size: 0.92rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    cursor: pointer;
+    text-decoration: none;
+    clip-path: polygon(10px 0%, 100% 0%, calc(100% - 10px) 100%, 0% 100%);
+    transition: all 0.25s;
+    display: inline-block;
+  }
+
+  .btn-outline:hover {
+    background: rgba(240,165,0,0.1);
+    border-color: var(--gold2);
+    transform: translateY(-2px);
+  }
+
+  .hero-stats {
+    display: flex;
+    gap: 3rem;
+    justify-content: center;
+    margin-top: 4rem;
+    flex-wrap: wrap;
+    animation: fadeUp 1s 0.7s ease both;
+  }
+
+  .hero-stat {
+    text-align: center;
+  }
+
+  .hero-stat .val {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 2rem;
+    color: var(--cyan2);
+    display: block;
+  }
+
+  .hero-stat .lbl {
+    font-size: 0.72rem;
+    color: var(--text-dim);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    font-family: 'Rajdhani', sans-serif;
+  }
+
+  .scroll-hint {
+    position: absolute;
+    bottom: 2rem;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    color: var(--text-dim);
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.65rem;
+    letter-spacing: 0.2em;
+    animation: bounce 2s infinite;
+  }
+
+  .scroll-hint::after {
+    content: '';
+    width: 1px;
+    height: 30px;
+    background: linear-gradient(var(--cyan), transparent);
+    display: block;
+  }
+
+  @keyframes bounce {
+    0%, 100% { transform: translateX(-50%) translateY(0); }
+    50% { transform: translateX(-50%) translateY(6px); }
+  }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* ── SECTION BASE ── */
+  section {
+    position: relative;
+    z-index: 1;
+  }
+
+  .section-inner {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 5rem 2rem;
+  }
+
+  .section-label {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.68rem;
+    color: var(--cyan);
+    letter-spacing: 0.35em;
+    text-transform: uppercase;
+    margin-bottom: 0.6rem;
+    opacity: 0.75;
+  }
+
+  .section-title {
+    font-family: 'Rajdhani', sans-serif;
+    font-size: clamp(1.8rem, 4vw, 2.8rem);
+    font-weight: 700;
+    line-height: 1.15;
+    letter-spacing: 0.03em;
+    margin-bottom: 1.2rem;
+  }
+
+  .section-title .accent { color: var(--gold); }
+  .section-title .accent2 { color: var(--cyan2); }
+
+  .section-desc {
+    font-size: 1rem;
+    line-height: 1.75;
+    color: var(--text-dim);
+    max-width: 680px;
+  }
+
+  hr.sep {
+    border: none;
+    border-top: 1px solid var(--border);
+    margin: 0;
+  }
+
+  /* ── INTRO / SP SECTION ── */
+  .intro-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 4rem;
+    align-items: center;
+    margin-top: 3rem;
+  }
+
+  .intro-visual {
+    position: relative;
+  }
+
+  .intro-visual::before {
+    content: '';
+    position: absolute;
+    inset: -2px;
+    background: linear-gradient(135deg, var(--border), var(--border-gold));
+    clip-path: polygon(12px 0%, 100% 0%, calc(100% - 12px) 100%, 0% 100%);
+    z-index: 0;
+  }
+
+  .intro-visual-inner {
+    position: relative;
+    z-index: 1;
+    background: var(--bg2);
+    clip-path: polygon(12px 0%, 100% 0%, calc(100% - 12px) 100%, 0% 100%);
+    padding: 1px;
+    overflow: hidden;
+  }
+
+  .intro-visual-inner img {
+    width: 100%;
+    display: block;
+    clip-path: polygon(12px 0%, 100% 0%, calc(100% - 12px) 100%, 0% 100%);
+    transition: transform 0.4s;
+  }
+
+  .intro-visual-inner img:hover { transform: scale(1.02); }
+
+  .intro-caption {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.65rem;
+    color: var(--text-dim);
+    text-align: center;
+    margin-top: 0.6rem;
+    letter-spacing: 0.12em;
+  }
+
+  .info-cards {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  .info-card {
+    border: 1px solid var(--border);
+    background: rgba(7,20,40,0.6);
+    padding: 1.2rem 1.4rem;
+    clip-path: polygon(8px 0%, 100% 0%, calc(100% - 8px) 100%, 0% 100%);
+    transition: border-color 0.25s, background 0.25s;
+  }
+
+  .info-card:hover {
+    border-color: var(--cyan);
+    background: rgba(0,212,232,0.04);
+  }
+
+  .info-card h4 {
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--gold2);
+    margin-bottom: 0.35rem;
+    letter-spacing: 0.05em;
+  }
+
+  .info-card p {
+    font-size: 0.88rem;
+    color: var(--text-dim);
+    line-height: 1.6;
+  }
+
+  /* ── APPLICATIONS ── */
+  .apps-section {
+    background: linear-gradient(180deg, transparent, rgba(4,13,26,0.8), transparent);
+  }
+
+  .apps-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 1.2rem;
+    margin-top: 3rem;
+  }
+
+  .app-card {
+    border: 1px solid var(--border);
+    background: rgba(7,20,40,0.5);
+    padding: 1.8rem 1.4rem;
+    position: relative;
+    overflow: hidden;
+    transition: all 0.3s;
+    clip-path: polygon(0 0, calc(100% - 16px) 0, 100% 16px, 100% 100%, 16px 100%, 0 calc(100% - 16px));
+  }
+
+  .app-card::before {
+    content: '';
+    position: absolute;
+    top: 0; right: 0;
+    width: 0; height: 0;
+    border-style: solid;
+    border-width: 0 16px 16px 0;
+    border-color: transparent var(--border) transparent transparent;
+    transition: border-color 0.3s;
+  }
+
+  .app-card:hover {
+    border-color: var(--gold);
+    background: rgba(240,165,0,0.04);
+    transform: translateY(-4px);
+  }
+
+  .app-card:hover::before { border-color: transparent var(--gold) transparent transparent; }
+
+  .app-icon {
+    font-size: 2rem;
+    margin-bottom: 0.8rem;
+  }
+
+  .app-card h3 {
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: var(--gold2);
+    letter-spacing: 0.05em;
+    margin-bottom: 0.5rem;
+  }
+
+  .app-card p {
+    font-size: 0.84rem;
+    color: var(--text-dim);
+    line-height: 1.6;
+  }
+
+  /* ── PROOF IMAGES ── */
+  .proof-section { }
+
+  .proof-intro {
+    background: rgba(0,212,232,0.03);
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--cyan);
+    padding: 1.4rem 1.8rem;
+    margin-bottom: 3rem;
+    font-size: 0.95rem;
+    line-height: 1.7;
+    color: var(--text);
+  }
+
+  .proof-intro strong { color: var(--cyan2); }
+
+  .proof-grid {
+    display: grid;
+    gap: 2rem;
+  }
+
+  .proof-item {
+    position: relative;
+  }
+
+  .proof-item-label {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.65rem;
+    color: var(--gold);
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    margin-bottom: 0.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+  }
+
+  .proof-item-label::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--border-gold);
+  }
+
+  .proof-img-wrap {
+    position: relative;
+    border: 1px solid var(--border);
+    background: var(--bg2);
+    overflow: hidden;
+  }
+
+  .proof-img-wrap::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, rgba(0,212,232,0.04) 0%, transparent 50%);
+    z-index: 1;
+    pointer-events: none;
+  }
+
+  .proof-img-wrap img {
+    width: 100%;
+    display: block;
+    transition: transform 0.5s;
+  }
+
+  .proof-img-wrap:hover img { transform: scale(1.01); }
+
+  .proof-caption {
+    margin-top: 0.8rem;
+    font-size: 0.85rem;
+    color: var(--text-dim);
+    line-height: 1.6;
+    padding: 0 0.2rem;
+  }
+
+  .proof-caption strong { color: var(--text); }
+
+  .misfit-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2rem;
+    margin-top: 2rem;
+    align-items: start;
+  }
+
+  .misfit-stats {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  .stat-box {
+    border: 1px solid var(--border);
+    background: rgba(7,20,40,0.6);
+    padding: 1.2rem 1.4rem;
+    clip-path: polygon(8px 0%, 100% 0%, calc(100% - 8px) 100%, 0% 100%);
+  }
+
+  .stat-box .label {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.65rem;
+    color: var(--text-dim);
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    margin-bottom: 0.3rem;
+  }
+
+  .stat-box .value {
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--green);
+  }
+
+  .stat-box .note {
+    font-size: 0.8rem;
+    color: var(--text-dim);
+    margin-top: 0.2rem;
+  }
+
+  /* ── FEATURES ── */
+  .features-section {
+    background: linear-gradient(180deg, transparent, rgba(4,13,26,0.9), transparent);
+  }
+
+  .features-tabs {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+    margin-bottom: 2.5rem;
+  }
+
+  .tab-btn {
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--text-dim);
+    padding: 8px 18px;
+    font-family: 'Rajdhani', sans-serif;
+    font-weight: 600;
+    font-size: 0.82rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: all 0.2s;
+    clip-path: polygon(6px 0%, 100% 0%, calc(100% - 6px) 100%, 0% 100%);
+  }
+
+  .tab-btn.active, .tab-btn:hover {
+    border-color: var(--cyan);
+    color: var(--cyan2);
+    background: rgba(0,212,232,0.06);
+  }
+
+  .features-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 1.2rem;
+  }
+
+  .feature-card {
+    border: 1px solid var(--border);
+    background: rgba(7,20,40,0.4);
+    padding: 1.6rem;
+    transition: all 0.3s;
+  }
+
+  .feature-card:hover {
+    border-color: rgba(0,212,232,0.4);
+    background: rgba(0,212,232,0.03);
+  }
+
+  .feature-icon {
+    width: 40px;
+    height: 40px;
+    background: rgba(0,212,232,0.1);
+    border: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2rem;
+    margin-bottom: 1rem;
+    clip-path: polygon(6px 0%, 100% 0%, calc(100% - 6px) 100%, 0% 100%);
+  }
+
+  .feature-card h4 {
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 1.05rem;
+    font-weight: 600;
+    color: var(--text);
+    margin-bottom: 0.5rem;
+    letter-spacing: 0.04em;
+  }
+
+  .feature-card ul {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+  }
+
+  .feature-card ul li {
+    font-size: 0.84rem;
+    color: var(--text-dim);
+    padding-left: 1rem;
+    position: relative;
+    line-height: 1.5;
+  }
+
+  .feature-card ul li::before {
+    content: '›';
+    position: absolute;
+    left: 0;
+    color: var(--cyan);
+    font-weight: 700;
+  }
+
+  /* ── INTERPRETATION ── */
+  .interp-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 4rem;
+    align-items: start;
+    margin-top: 3rem;
+  }
+
+  .checklist {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 0.8rem;
+    margin-top: 1.5rem;
+  }
+
+  .checklist li {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.8rem;
+    font-size: 0.95rem;
+    color: var(--text);
+    line-height: 1.5;
+    padding: 0.8rem 1rem;
+    border: 1px solid var(--border);
+    background: rgba(0,232,144,0.03);
+    transition: all 0.25s;
+  }
+
+  .checklist li:hover {
+    border-color: var(--green);
+    background: rgba(0,232,144,0.06);
+  }
+
+  .checklist li span.tick {
+    font-size: 1rem;
+    flex-shrink: 0;
+  }
+
+  .interp-side {
+    display: flex;
+    flex-direction: column;
+    gap: 1.2rem;
+  }
+
+  .interp-block {
+    border-left: 2px solid var(--gold);
+    padding-left: 1.2rem;
+  }
+
+  .interp-block h4 {
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 1.05rem;
+    font-weight: 600;
+    color: var(--gold2);
+    margin-bottom: 0.4rem;
+  }
+
+  .interp-block p {
+    font-size: 0.88rem;
+    color: var(--text-dim);
+    line-height: 1.65;
+  }
+
+  /* ── PRICING ── */
+  .pricing-section {
+    background: linear-gradient(180deg, transparent, rgba(4,13,26,0.9), transparent);
+  }
+
+  .pricing-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.5rem;
+    margin-top: 3rem;
+  }
+
+  .price-card {
+    border: 1px solid var(--border);
+    background: rgba(7,20,40,0.5);
+    padding: 2rem 1.6rem;
+    position: relative;
+    clip-path: polygon(0 0, calc(100% - 16px) 0, 100% 16px, 100% 100%, 0 100%);
+    transition: all 0.3s;
+  }
+
+  .price-card.featured {
+    border-color: var(--gold);
+    background: rgba(240,165,0,0.04);
+  }
+
+  .price-card.featured::after {
+    content: 'MOST POPULAR';
+    position: absolute;
+    top: -1px;
+    right: 20px;
+    background: var(--gold);
+    color: var(--bg);
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 0.65rem;
+    font-weight: 700;
+    letter-spacing: 0.2em;
+    padding: 3px 10px;
+  }
+
+  .price-card:hover {
+    transform: translateY(-4px);
+    border-color: var(--cyan);
+  }
+
+  .price-card.featured:hover { border-color: var(--gold2); }
+
+  .price-tier {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.68rem;
+    color: var(--cyan);
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    margin-bottom: 0.5rem;
+  }
+
+  .price-card h3 {
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--text);
+    margin-bottom: 0.3rem;
+  }
+
+  .price-amount {
+    margin: 1.2rem 0;
+  }
+
+  .price-val {
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: var(--gold2);
+  }
+
+  .price-period {
+    font-size: 0.8rem;
+    color: var(--text-dim);
+    margin-left: 4px;
+  }
+
+  .price-note {
+    font-size: 0.78rem;
+    color: var(--text-dim);
+    margin-bottom: 1.5rem;
+    line-height: 1.5;
+  }
+
+  .price-divider {
+    border: none;
+    border-top: 1px solid var(--border);
+    margin: 1.2rem 0;
+  }
+
+  .price-features {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 0.55rem;
+    margin-bottom: 2rem;
+  }
+
+  .price-features li {
+    font-size: 0.85rem;
+    color: var(--text-dim);
+    display: flex;
+    align-items: flex-start;
+    gap: 0.5rem;
+    line-height: 1.4;
+  }
+
+  .price-features li .check {
+    color: var(--green);
+    flex-shrink: 0;
+    font-size: 0.9rem;
+  }
+
+  .price-features li .check-no {
+    color: #444;
+    flex-shrink: 0;
+    font-size: 0.9rem;
+  }
+
+  .price-btn {
+    width: 100%;
+    display: block;
+    text-align: center;
+    padding: 12px;
+    font-family: 'Rajdhani', sans-serif;
+    font-weight: 700;
+    font-size: 0.9rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    text-decoration: none;
+    cursor: pointer;
+    border: none;
+    transition: all 0.25s;
+  }
+
+  .price-btn-outline {
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--text-dim);
+  }
+
+  .price-btn-outline:hover {
+    border-color: var(--cyan);
+    color: var(--cyan2);
+    background: rgba(0,212,232,0.05);
+  }
+
+  .price-btn-gold {
+    background: linear-gradient(135deg, var(--gold), var(--gold2));
+    color: var(--bg);
+  }
+
+  .price-btn-gold:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 24px rgba(240,165,0,0.35);
+  }
+
+  .price-btn-cyan {
+    background: linear-gradient(135deg, var(--teal), var(--cyan));
+    color: var(--bg);
+  }
+
+  .price-btn-cyan:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 24px rgba(0,212,232,0.35);
+  }
+
+  /* ── CONTACT ── */
+  .contact-grid {
+    display: grid;
+    grid-template-columns: 1fr 1.4fr;
+    gap: 4rem;
+    margin-top: 3rem;
+  }
+
+  .contact-info h3 {
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 1.4rem;
+    font-weight: 600;
+    color: var(--text);
+    margin-bottom: 1rem;
+  }
+
+  .contact-info p {
+    font-size: 0.9rem;
+    color: var(--text-dim);
+    line-height: 1.7;
+    margin-bottom: 1.5rem;
+  }
+
+  .contact-detail {
+    display: flex;
+    align-items: center;
+    gap: 0.7rem;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.8rem;
+    color: var(--cyan);
+    margin-bottom: 0.7rem;
+  }
+
+  .contact-form {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  .form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+  }
+
+  .form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+  }
+
+  .form-group label {
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 0.78rem;
+    font-weight: 600;
+    color: var(--text-dim);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+  }
+
+  .form-group input,
+  .form-group textarea,
+  .form-group select {
+    background: rgba(7,20,40,0.8);
+    border: 1px solid var(--border);
+    color: var(--text);
+    padding: 10px 14px;
+    font-family: 'Exo 2', sans-serif;
+    font-size: 0.9rem;
+    outline: none;
+    transition: border-color 0.2s;
+    width: 100%;
+  }
+
+  .form-group input:focus,
+  .form-group textarea:focus {
+    border-color: var(--cyan);
+    background: rgba(0,212,232,0.03);
+  }
+
+  .form-group textarea { resize: vertical; min-height: 110px; }
+
+  .form-submit {
+    background: linear-gradient(135deg, var(--cyan), var(--teal));
+    color: var(--bg);
+    border: none;
+    padding: 14px 36px;
+    font-family: 'Rajdhani', sans-serif;
+    font-weight: 700;
+    font-size: 0.92rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    cursor: pointer;
+    clip-path: polygon(10px 0%, 100% 0%, calc(100% - 10px) 100%, 0% 100%);
+    transition: all 0.25s;
+    align-self: flex-start;
+  }
+
+  .form-submit:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 28px rgba(0,212,232,0.35);
+  }
+
+  /* ── FOOTER ── */
+  footer {
+    border-top: 1px solid var(--border);
+    background: rgba(2,8,16,0.95);
+    padding: 3rem 2rem;
+    position: relative;
+    z-index: 1;
+  }
+
+  .footer-inner {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 1.5rem;
+  }
+
+  .footer-logo img {
+    height: 55px;
+    filter: drop-shadow(0 0 10px rgba(0,212,232,0.2));
+    opacity: 0.8;
+  }
+
+  .footer-text {
+    font-family: 'Crimson Pro', serif;
+    font-style: italic;
+    font-size: 0.95rem;
+    color: var(--text-dim);
+  }
+
+  .footer-text em { color: var(--gold); font-style: normal; }
+
+  .footer-copy {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.65rem;
+    color: var(--text-dim);
+    letter-spacing: 0.1em;
+    opacity: 0.5;
+  }
+
+  /* ── DIVIDERS & ACCENTS ── */
+  .divider-line {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 1rem;
+  }
+
+  .divider-line::before, .divider-line::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--border);
+  }
+
+  .divider-line span {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.6rem;
+    color: var(--cyan);
+    letter-spacing: 0.2em;
+    opacity: 0.6;
+  }
+
+  /* ── TERMINAL BOX ── */
+  .terminal-box {
+    background: rgba(2,8,16,0.9);
+    border: 1px solid var(--border);
+    padding: 1.2rem 1.4rem;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.78rem;
+    color: var(--text-dim);
+    line-height: 1.8;
+    margin-top: 2rem;
+    position: relative;
+  }
+
+  .terminal-box::before {
+    content: 'SPExplorer v2.4.1 — SESSION LOG';
+    display: block;
+    color: var(--cyan);
+    font-size: 0.65rem;
+    letter-spacing: 0.2em;
+    margin-bottom: 0.8rem;
+    padding-bottom: 0.6rem;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .terminal-box .t-green { color: var(--green); }
+  .terminal-box .t-gold { color: var(--gold); }
+  .terminal-box .t-cyan { color: var(--cyan2); }
+  .terminal-box .t-red { color: var(--red); }
+  .terminal-box .t-dim { color: var(--text-dim); opacity: 0.5; }
+
+  /* ── BADGE ROW ── */
+  .badge-row {
+    display: flex;
+    gap: 0.8rem;
+    flex-wrap: wrap;
+    margin-top: 1.5rem;
+  }
+
+  .badge {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.65rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    padding: 4px 12px;
+    border: 1px solid;
+    clip-path: polygon(6px 0%, 100% 0%, calc(100% - 6px) 100%, 0% 100%);
+  }
+
+  .badge-cyan { color: var(--cyan2); border-color: rgba(0,245,255,0.3); background: rgba(0,245,255,0.05); }
+  .badge-gold { color: var(--gold2); border-color: rgba(255,201,64,0.3); background: rgba(255,201,64,0.05); }
+  .badge-green { color: var(--green); border-color: rgba(0,232,144,0.3); background: rgba(0,232,144,0.05); }
+
+  /* ── RESPONSIVE ── */
+  @media (max-width: 900px) {
+    .intro-grid, .interp-grid, .contact-grid, .misfit-grid {
+      grid-template-columns: 1fr;
+      gap: 2rem;
+    }
+    .pricing-grid {
+      grid-template-columns: 1fr;
+    }
+    .form-row {
+      grid-template-columns: 1fr;
+    }
+    nav { padding: 0 1.2rem; }
+    .nav-links { display: none; }
+  }
+
+  /* ── SECTION MARKER ── */
+  .section-marker {
+    position: absolute;
+    top: 0; left: 2rem;
+    width: 1px;
+    height: 100%;
+    background: linear-gradient(transparent, var(--border), transparent);
+    pointer-events: none;
+  }
+
+  /* ── BG DECORATION ── */
+  .bg-hex {
+    position: absolute;
+    opacity: 0.03;
+    pointer-events: none;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 8rem;
+    color: var(--cyan);
+    line-height: 1;
+    user-select: none;
+  }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <a href="#" class="nav-logo">
+    <img src="logo.png" alt="SPExplorer Geoscience">
+  </a>
+  <ul class="nav-links">
+    <li><a href="#about">About</a></li>
+    <li><a href="#applications">Applications</a></li>
+    <li><a href="#performance">Performance</a></li>
+    <li><a href="#features">Features</a></li>
+    <li><a href="#pricing">Pricing</a></li>
+    <li><a href="#contact">Contact</a></li>
+  </ul>
+  <a href="#contact" class="nav-cta">Request Demo</a>
+</nav>
+
+<!-- HERO -->
+<section class="hero" id="home">
+  <div class="hero-glow"></div>
+  <div class="hero-glow2"></div>
+
+  <div class="hero-tag">// Self-Potential Geophysics · 3D Inversion · Mineral Exploration</div>
+
+  <div class="hero-logo">
+    <img src="logo.png" alt="SPExplorer">
+  </div>
+
+  <h1 class="hero-title">
+    <span class="sp">SP</span><span class="ex">Explorer</span>
+  </h1>
+
+  <p class="hero-slogan">Turning <em>Self-Potential Data</em> Into Discovery</p>
+
+  <p class="hero-desc">
+    Advanced Self-Potential data processing, 3D forward modelling, inversion, and interpretation
+    software — engineered for the exploration geoscientist who demands more than anomaly maps.
+  </p>
+
+  <div class="hero-btns">
+    <a href="#performance" class="btn-primary">See Results</a>
+    <a href="#pricing" class="btn-outline">View Pricing</a>
+  </div>
+
+  <div class="hero-stats">
+    <div class="hero-stat">
+      <span class="val">r=0.997</span>
+      <span class="lbl">Correlation (Obs vs Pred)</span>
+    </div>
+    <div class="hero-stat">
+      <span class="val">3D</span>
+      <span class="lbl">Current Density Inversion</span>
+    </div>
+    <div class="hero-stat">
+      <span class="val">RMS&lt;33mV</span>
+      <span class="lbl">Tongariro Field Dataset</span>
+    </div>
+    <div class="hero-stat">
+      <span class="val">95k+</span>
+      <span class="lbl">Active Model Cells</span>
+    </div>
+  </div>
+
+  <div class="scroll-hint">SCROLL TO EXPLORE</div>
+</section>
+
+<hr class="sep">
+
+<!-- ABOUT / SP INTRO -->
+<section id="about">
+  <div class="section-inner">
+    <div class="section-label">// 01 — Introduction</div>
+    <h2 class="section-title">Beyond <span class="accent">Anomaly Mapping</span></h2>
+    <p class="section-desc">
+      Self-Potential surveys are among the most cost-effective geophysical methods for exploring
+      sulfide-rich mineral systems. Yet traditional interpretation has long been limited to
+      visualizing surface anomalies. SPExplorer changes that.
+    </p>
+
+    <div class="intro-grid">
+      <div>
+        <div class="info-cards">
+          <div class="info-card">
+            <h4>The Problem with Conventional SP</h4>
+            <p>Traditional SP interpretation maps surface anomalies but provides no depth information, 3D geometry, or subsurface current density distribution — leaving exploration teams with ambiguous targets.</p>
+          </div>
+          <div class="info-card">
+            <h4>The SPExplorer Solution</h4>
+            <p>SPExplorer transforms surface SP measurements into full 3D current density models, revealing the geometry, depth, and distribution of subsurface electrochemical sources driving the SP response.</p>
+          </div>
+          <div class="info-card">
+            <h4>Scientific Foundation</h4>
+            <p>Built on rigorous geophysical inverse theory, the software jointly inverts SP data for current density source distributions within a realistic 3D topographic model, with full misfit tracking and uncertainty quantification.</p>
+          </div>
+        </div>
+
+        <div class="terminal-box">
+          <span class="t-green">✔ LOADED</span> survey.dat — <span class="t-gold">1,042 SP stations</span><br>
+          <span class="t-green">✔ MESH  </span> 77×68×86 cells · <span class="t-cyan">95,047 active</span><br>
+          <span class="t-green">✔ ELEV  </span> 181–1898 m asl (topography embedded)<br>
+          <span class="t-dim">...running iterative inversion...</span><br>
+          <span class="t-green">✔ DONE  </span> RMS = <span class="t-gold">32.6 mV</span> · r = <span class="t-cyan">0.9965</span><br>
+          <span class="t-cyan">▶ Export 3D model</span> · <span class="t-cyan">Plot sections</span> · <span class="t-cyan">Generate report</span>
+        </div>
+      </div>
+
+      <div>
+        <div class="intro-visual">
+          <div class="intro-visual-inner">
+            <img src="10_summary_dashboard.png" alt="SP Inversion Summary Dashboard">
+          </div>
+        </div>
+        <div class="intro-caption">FIG 1 — Tongariro SP Inversion Summary: Observed, Predicted &amp; Residual maps (top row); Surface current density Qs and Flow Proxy components Fx, Fy (bottom row). RMS = 32.6 mV.</div>
+
+        <div class="badge-row">
+          <span class="badge badge-cyan">Observed SP</span>
+          <span class="badge badge-cyan">Predicted SP</span>
+          <span class="badge badge-gold">Residual Maps</span>
+          <span class="badge badge-green">Current Density Qs</span>
+          <span class="badge badge-green">Flow Proxy Fx/Fy</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<hr class="sep">
+
+<!-- APPLICATIONS -->
+<section id="applications" class="apps-section">
+  <div class="section-inner">
+    <div class="section-label">// 02 — Target Deposit Types</div>
+    <h2 class="section-title">Mineral <span class="accent2">Exploration</span> Applications</h2>
+    <p class="section-desc">
+      SPExplorer's 3D SP inversion is particularly relevant for electrochemically active sulfide systems
+      and redox-sensitive mineralisation environments.
+    </p>
+
+    <div class="apps-grid">
+      <div class="app-card">
+        <div class="app-icon">⛏</div>
+        <h3>VMS Deposits</h3>
+        <p>Volcanogenic Massive Sulfide systems — seafloor and ancient submarine volcanic settings with high sulfide connectivity and strong SP contrasts.</p>
+      </div>
+      <div class="app-card">
+        <div class="app-icon">🪨</div>
+        <h3>SEDEX Pb-Zn</h3>
+        <p>Sediment-hosted exhalative lead-zinc deposits with redox boundaries and conductive sulfide lenses producing mappable SP anomalies.</p>
+      </div>
+      <div class="app-card">
+        <div class="app-icon">🟤</div>
+        <h3>Cu-Co Copperbelt</h3>
+        <p>Copper-Cobalt deposits of the Zambian Copperbelt — stratiform sulfide-oxide contacts generating strong electrochemical potentials.</p>
+      </div>
+      <div class="app-card">
+        <div class="app-icon">🟩</div>
+        <h3>Nickel Sulfides</h3>
+        <p>Magmatic nickel sulfide systems including disseminated and massive pentlandite-pyrrhotite assemblages with anomalous current density signatures.</p>
+      </div>
+      <div class="app-card">
+        <div class="app-icon">🔴</div>
+        <h3>Massive Pyrite</h3>
+        <p>Bulk-tonnage pyrite and polymetallic sulfide systems where SP inversion can define orebody boundaries and feeder zones.</p>
+      </div>
+      <div class="app-card">
+        <div class="app-icon">💧</div>
+        <h3>Hydrothermal Systems</h3>
+        <p>Active and fossil hydrothermal fields where fluid pathways, fault conduits, and alteration halos create measurable self-potential signals.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<hr class="sep">
+
+<!-- PERFORMANCE / PROOF IMAGES -->
+<section id="performance" class="proof-section">
+  <div class="section-inner">
+    <div class="section-label">// 03 — Proof of Performance</div>
+    <h2 class="section-title">Tongariro Mountain <span class="accent">SP Dataset</span> — Results</h2>
+
+    <div class="proof-intro">
+      The following figures demonstrate SPExplorer's inversion performance on the
+      <strong>Tongariro Mountain (New Zealand) SP dataset</strong> — a topographically complex
+      volcanic environment with a dynamic SP field spanning &gt;2,500 mV dynamic range. All results
+      were generated entirely within SPExplorer.
+    </div>
+
+    <div class="proof-grid">
+
+      <!-- MISFIT FIGURE -->
+      <div class="proof-item">
+        <div class="proof-item-label">Fig 2 — Inversion Misfit Analysis</div>
+        <div class="misfit-grid">
+          <div class="proof-img-wrap">
+            <img src="07_misfit.png" alt="Predicted vs Observed SP correlation and Residual Distribution">
+          </div>
+          <div class="misfit-stats">
+            <div class="stat-box">
+              <div class="label">Correlation Coefficient</div>
+              <div class="value">r = 0.9965</div>
+              <div class="note">Predicted vs Observed SP — near-perfect linear agreement across the full ±1,100 mV dynamic range.</div>
+            </div>
+            <div class="stat-box">
+              <div class="label">RMS Misfit</div>
+              <div class="value">31.4 mV</div>
+              <div class="note">Root-mean-square residual — well within typical SP measurement noise floor for a complex volcanic terrain.</div>
+            </div>
+            <div class="stat-box">
+              <div class="label">Residual Distribution</div>
+              <div class="value" style="font-size:1.2rem; color: var(--cyan2);">Gaussian · Centered</div>
+              <div class="note">Histogram shows a tight, zero-centered residual distribution with no systematic bias — confirming model validity.</div>
+            </div>
+          </div>
+        </div>
+        <p class="proof-caption">
+          <strong>Left:</strong> Scatter plot of Predicted vs Observed SP values (cyan dots, orange 1:1 line). Tight clustering along the perfect-fit diagonal confirms excellent model fit. <strong>Right:</strong> Residual histogram — narrow, symmetric Gaussian distribution centered near zero indicates no systematic misfit or processing artefacts.
+        </p>
+      </div>
+
+      <!-- SUMMARY DASHBOARD -->
+      <div class="proof-item">
+        <div class="proof-item-label">Fig 3 — SP Inversion Dashboard</div>
+        <div class="proof-img-wrap">
+          <img src="10_summary_dashboard.png" alt="SP Inversion Summary Dashboard">
+        </div>
+        <p class="proof-caption">
+          <strong>Top row:</strong> Observed SP, Predicted SP, and Residual maps on the survey surface. Colour scales ±1,500 mV (data) and ±240 mV (residual) demonstrate the strong predictive capability of the 3D model. <strong>Bottom row:</strong> Recovered surface current density (Qs in A/m³) and horizontal flow-proxy components (Fx, Fy), revealing the spatial distribution of subsurface electrochemical sources.
+        </p>
+      </div>
+
+      <!-- FLAGSHIP 3D SECTIONS -->
+      <div class="proof-item">
+        <div class="proof-item-label">Fig 4 — 3D Current Density Model &amp; Depth Sections</div>
+        <div class="proof-img-wrap">
+          <img src="12_summary_flagship.png" alt="3D SP Inversion — Current Density Summary with Depth Sections">
+        </div>
+        <p class="proof-caption">
+          <strong>Top row:</strong> Observed SP map, and horizontal Qs slices at 1,100 m and 900 m asl — revealing depth-varying current density structure. <strong>Middle &amp; Bottom rows:</strong> East-West (Y=3.0 km) and North-South (X=3.6 km) vertical cross-sections of recovered current density, with and without flow-vector overlays. The 5× vertical exaggeration (VE×5) enhances structural interpretation. The 3D model encompasses a 77×68×86 grid with 95,047 active cells between 181–1,898 m elevation.
+        </p>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<hr class="sep">
+
+<!-- INTERPRETATION SIGNIFICANCE -->
+<section id="interpretation">
+  <div class="section-inner">
+    <div class="section-label">// 04 — Geological Significance</div>
+    <h2 class="section-title">What High <span class="accent">Current Density</span> Zones Mean</h2>
+
+    <div class="interp-grid">
+      <div>
+        <p class="section-desc" style="max-width: 100%;">
+          In mineral exploration, zones of elevated current density in the SP inversion model
+          may indicate areas of concentrated electrochemical activity — often spatially associated
+          with sulfide mineralisation and structurally controlled fluid pathways.
+        </p>
+        <ul class="checklist" style="margin-top: 1.5rem;">
+          <li><span class="tick">✅</span> <span>Connected sulfide accumulations generating electrolytic current loops</span></li>
+          <li><span class="tick">✅</span> <span>Massive or semi-massive sulfide bodies with high electronic conductivity</span></li>
+          <li><span class="tick">✅</span> <span>Redox boundaries favorable for metal precipitation and sulfide stability</span></li>
+          <li><span class="tick">✅</span> <span>Faults and fluid pathways that focused mineralizing hydrothermal fluids</span></li>
+          <li><span class="tick">✅</span> <span>Alteration halos and graphitic units with anomalous electrochemical contrast</span></li>
+        </ul>
+      </div>
+
+      <div class="interp-side">
+        <div class="interp-block">
+          <h4>From Surface to Drill Target</h4>
+          <p>By converting SP measurements into 3D current density distributions, geoscientists move beyond anomaly mapping and gain a quantitative understanding of potential mineralisation controls. Depth extents, dip directions, and lateral continuity are all recoverable from the inversion model.</p>
+        </div>
+        <div class="interp-block">
+          <h4>Low-Cost, High-Impact Prioritisation</h4>
+          <p>As exploration targets become deeper and more concealed beneath cover, advanced SP interpretation offers a low-cost tool for target ranking, geochemical anomaly evaluation, and drill-hole planning ahead of expensive drilling campaigns.</p>
+        </div>
+        <div class="interp-block">
+          <h4>Integration with Other Methods</h4>
+          <p>SPExplorer model outputs — current density volumes, flow-proxy vectors, and depth sections — are exportable in standard formats for integration with IP, MT, gravity, or seismic datasets in multi-physics interpretation workflows.</p>
+        </div>
+        <div class="interp-block">
+          <h4>Transparent Uncertainty Tracking</h4>
+          <p>Every inversion result is accompanied by full misfit statistics, residual maps, and convergence diagnostics — so geoscientists can assess model reliability and make defensible decisions backed by quantitative metrics.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<hr class="sep">
+
+<!-- FEATURES -->
+<section id="features" class="features-section">
+  <div class="section-inner">
+    <div class="section-label">// 05 — Software Capabilities</div>
+    <h2 class="section-title">Full-Stack <span class="accent2">SP Processing</span> &amp; Inversion</h2>
+    <p class="section-desc">
+      SPExplorer covers the complete SP interpretation workflow — from raw field data
+      ingestion through to publication-quality 3D inversion models and drill target outputs.
+    </p>
+
+    <div class="features-grid" style="margin-top: 3rem;">
+
+      <div class="feature-card">
+        <div class="feature-icon">📥</div>
+        <h4>Data Import &amp; Management</h4>
+        <ul>
+          <li>Multi-format import: CSV, XYZ, ASCII, SEG-Y, KML/KMZ</li>
+          <li>GPS / GNSS coordinate handling and datum transformation</li>
+          <li>Electrode-pair survey geometry reconstruction</li>
+          <li>Bulk data merge for multi-campaign surveys</li>
+          <li>Topographic DEM integration and surface alignment</li>
+        </ul>
+      </div>
+
+      <div class="feature-card">
+        <div class="feature-icon">🔧</div>
+        <h4>Data Processing &amp; QC</h4>
+        <ul>
+          <li>Interactive data editing and outlier flagging</li>
+          <li>Spike removal and de-spiking algorithms</li>
+          <li>Drift correction and baseline subtraction</li>
+          <li>Electrode mismatch and polarity correction</li>
+          <li>Time-series noise filtering (Butterworth, median)</li>
+          <li>Moving-average and Gaussian spatial filters</li>
+        </ul>
+      </div>
+
+      <div class="feature-card">
+        <div class="feature-icon">🗺️</div>
+        <h4>Gridding &amp; Map Generation</h4>
+        <ul>
+          <li>Kriging, minimum curvature, and natural neighbour gridding</li>
+          <li>Anisotropic gridding for elongated survey geometries</li>
+          <li>Upward/downward continuation</li>
+          <li>Horizontal gradient and analytical signal maps</li>
+          <li>Topographic correction of SP anomalies</li>
+          <li>Publication-quality map export (PNG, PDF, SVG)</li>
+        </ul>
+      </div>
+
+      <div class="feature-card">
+        <div class="feature-icon">📐</div>
+        <h4>2D Forward Modelling</h4>
+        <ul>
+          <li>2D line-based SP forward modelling over dipole sources</li>
+          <li>Polarisable sphere, cylinder, and sheet models</li>
+          <li>Variable topography profiles</li>
+          <li>Sensitivity kernel computation</li>
+          <li>Real-time model update and residual display</li>
+        </ul>
+      </div>
+
+      <div class="feature-card">
+        <div class="feature-icon">🧊</div>
+        <h4>3D Mesh &amp; Forward Modelling</h4>
+        <ul>
+          <li>Automatic 3D mesh generation from survey footprint + DEM</li>
+          <li>Active / padding cell configuration</li>
+          <li>Finite element 3D SP forward solution</li>
+          <li>Current density source kernel computation</li>
+          <li>Multi-source superposition modelling</li>
+          <li>Variable background resistivity support</li>
+        </ul>
+      </div>
+
+      <div class="feature-card">
+        <div class="feature-icon">🔄</div>
+        <h4>3D Inversion Engine</h4>
+        <ul>
+          <li>Regularised iterative inversion (L2, L1, mixed-norm)</li>
+          <li>Tikhonov regularisation with alpha scheduling</li>
+          <li>Depth weighting for equitable source recovery</li>
+          <li>Bound constraints on current density amplitudes</li>
+          <li>Convergence monitoring and misfit tracking</li>
+          <li>Restart and warm-start from previous models</li>
+        </ul>
+      </div>
+
+      <div class="feature-card">
+        <div class="feature-icon">📊</div>
+        <h4>Misfit &amp; QA Diagnostics</h4>
+        <ul>
+          <li>Predicted vs observed scatter plots with r, RMS, χ²</li>
+          <li>Residual maps and anomaly maps side-by-side</li>
+          <li>Residual histogram and normality test</li>
+          <li>Iteration convergence curves</li>
+          <li>Station-by-station misfit flagging</li>
+        </ul>
+      </div>
+
+      <div class="feature-card">
+        <div class="feature-icon">🧭</div>
+        <h4>Visualisation &amp; Sections</h4>
+        <ul>
+          <li>Horizontal depth slices at any elevation</li>
+          <li>Arbitrary E-W and N-S vertical cross-sections</li>
+          <li>3D voxel volume rendering</li>
+          <li>Flow-vector (current proxy) overlay on sections</li>
+          <li>Variable vertical exaggeration controls</li>
+          <li>Interactive profile extraction along drill fences</li>
+        </ul>
+      </div>
+
+      <div class="feature-card">
+        <div class="feature-icon">📤</div>
+        <h4>Export &amp; Integration</h4>
+        <ul>
+          <li>3D model export: UBC-GIF, VTK, Leapfrog, GOCAD</li>
+          <li>CSV / XYZ point cloud export of inverted parameters</li>
+          <li>GeoTIFF raster export for GIS integration</li>
+          <li>Drill-target report generator (PDF)</li>
+          <li>Python API for batch processing and scripting</li>
+        </ul>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<hr class="sep">
+
+<!-- PRICING -->
+<section id="pricing" class="pricing-section">
+  <div class="section-inner">
+    <div class="section-label">// 06 — Licensing &amp; Pricing</div>
+    <h2 class="section-title">Flexible <span class="accent">Licensing</span> for Every Exploration Budget</h2>
+    <p class="section-desc">
+      Purpose-built pricing for junior explorers through to mid-tier producers. All licenses
+      include full access to SPExplorer's processing, modelling, and inversion modules.
+    </p>
+
+    <div class="pricing-grid">
+
+      <!-- STARTER -->
+      <div class="price-card">
+        <div class="price-tier">// Tier 1</div>
+        <h3>Field Starter</h3>
+        <p style="font-size:0.82rem; color:var(--text-dim); margin-bottom:0.5rem;">Single site · 1 user · 12 months</p>
+        <div class="price-amount">
+          <span class="price-val">$15,000</span>
+          <span class="price-period">/ site license</span>
+        </div>
+        <p class="price-note">Ideal for junior explorers running a single survey campaign or evaluating one specific target area.</p>
+        <hr class="price-divider">
+        <ul class="price-features">
+          <li><span class="check">✓</span> Full SP processing &amp; QC toolset</li>
+          <li><span class="check">✓</span> 2D forward modelling</li>
+          <li><span class="check">✓</span> 3D mesh &amp; forward modelling</li>
+          <li><span class="check">✓</span> 3D inversion engine (up to 100k cells)</li>
+          <li><span class="check">✓</span> PDF report generation</li>
+          <li><span class="check">✓</span> Email support</li>
+          <li><span class="check-no">✗</span> <span style="opacity:0.45">Multi-site deployment</span></li>
+          <li><span class="check-no">✗</span> <span style="opacity:0.45">Python API access</span></li>
+        </ul>
+        <a href="#contact" class="price-btn price-btn-outline">Get Started</a>
+      </div>
+
+      <!-- EXPLORER -->
+      <div class="price-card featured">
+        <div class="price-tier">// Tier 2</div>
+        <h3>Explorer Pro</h3>
+        <p style="font-size:0.82rem; color:var(--text-dim); margin-bottom:0.5rem;">Up to 3 sites · 3 users · 12 months</p>
+        <div class="price-amount">
+          <span class="price-val">$35,000</span>
+          <span class="price-period">/ bundle</span>
+        </div>
+        <p class="price-note">Best for active junior-to-mid-tier explorers managing multiple targets or running concurrent campaigns.</p>
+        <hr class="price-divider">
+        <ul class="price-features">
+          <li><span class="check">✓</span> Everything in Field Starter</li>
+          <li><span class="check">✓</span> Multi-site deployment (3 sites)</li>
+          <li><span class="check">✓</span> Unlimited mesh size inversion</li>
+          <li><span class="check">✓</span> Python API &amp; batch scripting</li>
+          <li><span class="check">✓</span> GIS &amp; Leapfrog export formats</li>
+          <li><span class="check">✓</span> Priority email + video support</li>
+          <li><span class="check">✓</span> 1× onboarding training session</li>
+          <li><span class="check-no">✗</span> <span style="opacity:0.45">Dedicated support engineer</span></li>
+        </ul>
+        <a href="#contact" class="price-btn price-btn-gold">Request License</a>
+      </div>
+
+      <!-- CORPORATE -->
+      <div class="price-card">
+        <div class="price-tier">// Tier 3</div>
+        <h3>Corporate Suite</h3>
+        <p style="font-size:0.82rem; color:var(--text-dim); margin-bottom:0.5rem;">Up to 10 sites · 10 users · 12 months</p>
+        <div class="price-amount">
+          <span class="price-val">$60,000</span>
+          <span class="price-period">/ annual bundle</span>
+        </div>
+        <p class="price-note">For mid-tier mining companies running active exploration programs across multiple projects and geographies.</p>
+        <hr class="price-divider">
+        <ul class="price-features">
+          <li><span class="check">✓</span> Everything in Explorer Pro</li>
+          <li><span class="check">✓</span> 10-site, 10-user deployment</li>
+          <li><span class="check">✓</span> Dedicated support engineer</li>
+          <li><span class="check">✓</span> Custom export format integration</li>
+          <li><span class="check">✓</span> Quarterly method review calls</li>
+          <li><span class="check">✓</span> Full training workshop (remote)</li>
+          <li><span class="check">✓</span> Early access to new features</li>
+          <li><span class="check">✓</span> Co-authorship support on publications</li>
+        </ul>
+        <a href="#contact" class="price-btn price-btn-cyan">Contact Sales</a>
+      </div>
+
+    </div>
+
+    <!-- ENTERPRISE -->
+    <div style="margin-top: 2rem; border: 1px solid var(--border-gold); background: rgba(240,165,0,0.03); padding: 2rem 2.5rem; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1.5rem; clip-path: polygon(0 0, calc(100% - 20px) 0, 100% 20px, 100% 100%, 0 100%);">
+      <div>
+        <div style="font-family: 'Share Tech Mono', monospace; font-size: 0.68rem; color: var(--gold); letter-spacing: 0.25em; margin-bottom: 0.4rem;">// ENTERPRISE &amp; MAJOR MINERS</div>
+        <h3 style="font-family: 'Rajdhani', sans-serif; font-size: 1.5rem; font-weight: 700; color: var(--text);">Large-Scale &amp; Enterprise Deployments</h3>
+        <p style="font-size: 0.88rem; color: var(--text-dim); margin-top: 0.4rem; max-width: 600px;">For large mining companies, multi-national explorers, research institutions, and government geological surveys requiring unlimited deployments, custom integrations, dedicated infrastructure support, or white-label licensing.</p>
+      </div>
+      <a href="#contact" class="btn-outline" style="white-space: nowrap;">Request a Quote</a>
+    </div>
+
+    <p style="margin-top: 1.5rem; font-size: 0.8rem; color: var(--text-dim); font-family: 'Share Tech Mono', monospace;">
+      * All prices in USD. Annual license includes software updates, maintenance releases, and standard support. Custom payment terms available for qualifying clients.
+    </p>
+  </div>
+</section>
+
+<hr class="sep">
+
+<!-- CONTACT -->
+<section id="contact">
+  <div class="section-inner">
+    <div class="section-label">// 07 — Get in Touch</div>
+    <h2 class="section-title">Request a <span class="accent">Demo</span> or License</h2>
+
+    <div class="contact-grid">
+      <div class="contact-info">
+        <h3>Let's Talk Exploration</h3>
+        <p>Whether you're evaluating SPExplorer for a specific project, planning a field campaign, or looking for a custom enterprise solution — we'd love to hear from you. Fill in your details and we'll respond within one business day.</p>
+
+        <div class="contact-detail">
+          <span>📧</span>
+          <span>himanshu.b1984@gmail.com</span>
+        </div>
+
+        <div style="margin-top: 1.5rem;">
+          <div style="font-family: 'Rajdhani', sans-serif; font-size: 0.85rem; font-weight: 600; color: var(--text-dim); letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 0.8rem;">What to include in your message:</div>
+          <ul style="list-style: none; display: flex; flex-direction: column; gap: 0.5rem;">
+            <li style="font-size: 0.85rem; color: var(--text-dim); padding-left: 1rem; position: relative;">
+              <span style="position: absolute; left: 0; color: var(--gold);">›</span>
+              Target deposit type and project location
+            </li>
+            <li style="font-size: 0.85rem; color: var(--text-dim); padding-left: 1rem; position: relative;">
+              <span style="position: absolute; left: 0; color: var(--gold);">›</span>
+              Approximate number of SP stations
+            </li>
+            <li style="font-size: 0.85rem; color: var(--text-dim); padding-left: 1rem; position: relative;">
+              <span style="position: absolute; left: 0; color: var(--gold);">›</span>
+              Whether you need data processing, modelling, or inversion
+            </li>
+            <li style="font-size: 0.85rem; color: var(--text-dim); padding-left: 1rem; position: relative;">
+              <span style="position: absolute; left: 0; color: var(--gold);">›</span>
+              Your preferred license tier or timeline
+            </li>
+          </ul>
+        </div>
+      </div>
+
+      <form class="contact-form" action="https://formspree.io/f/himanshu.b1984@gmail.com" method="POST">
+        <div class="form-row">
+          <div class="form-group">
+            <label for="name">Full Name *</label>
+            <input type="text" id="name" name="name" required placeholder="Dr. Jane Smith">
+          </div>
+          <div class="form-group">
+            <label for="email">Email Address *</label>
+            <input type="email" id="email" name="email" required placeholder="jane@miningco.com">
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label for="company">Company / Institution</label>
+            <input type="text" id="company" name="company" placeholder="Acme Mining Pty Ltd">
+          </div>
+          <div class="form-group">
+            <label for="interest">Area of Interest</label>
+            <input type="text" id="interest" name="interest" placeholder="VMS · Ni sulfide · SEDEX…">
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="message">Message *</label>
+          <textarea id="message" name="message" rows="5" required placeholder="Tell us about your project, dataset, or licensing needs..."></textarea>
+        </div>
+        <!-- Hidden field to route email -->
+        <input type="hidden" name="_replyto" value="himanshu.b1984@gmail.com">
+        <input type="hidden" name="_subject" value="SPExplorer Website Enquiry">
+        <button type="submit" class="form-submit">Send Message →</button>
+      </form>
+    </div>
+  </div>
+</section>
+
+<hr class="sep">
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-inner">
+    <div class="footer-logo">
+      <img src="logo.png" alt="SPExplorer Geoscience">
+    </div>
+    <div class="footer-text">
+      <em>Turning Self-Potential Data Into Discovery</em>
+    </div>
+    <div class="footer-copy">
+      © 2025 SPExplorer Geoscience · All rights reserved
+    </div>
+  </div>
+</footer>
+
+<script>
+  // Smooth active nav on scroll
+  const sections = document.querySelectorAll('section[id]');
+  const navLinks = document.querySelectorAll('.nav-links a');
+
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        const id = entry.target.id;
+        navLinks.forEach(a => {
+          a.style.color = a.getAttribute('href') === `#${id}` ? 'var(--cyan2)' : '';
+        });
+      }
+    });
+  }, { threshold: 0.3 });
+
+  sections.forEach(s => observer.observe(s));
+
+  // Animate elements on scroll
+  const fadeEls = document.querySelectorAll('.app-card, .feature-card, .price-card, .info-card, .stat-box');
+  const fadeObserver = new IntersectionObserver((entries) => {
+    entries.forEach((entry, i) => {
+      if (entry.isIntersecting) {
+        entry.target.style.opacity = '0';
+        entry.target.style.transform = 'translateY(16px)';
+        entry.target.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
+        setTimeout(() => {
+          entry.target.style.opacity = '';
+          entry.target.style.transform = '';
+        }, 80 * (Array.from(fadeEls).indexOf(entry.target) % 6));
+        fadeObserver.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.1 });
+
+  fadeEls.forEach(el => {
+    el.style.opacity = '0';
+    fadeObserver.observe(el);
+  });
+</script>
+
+</body>
+</html>
