@@ -1,0 +1,2337 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SPExplorer Geoscience — 3D Self-Potential Inversion Platform</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@300;400;500;600;700&family=Share+Tech+Mono&family=Crimson+Pro:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Exo+2:wght@100;200;300;400;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #020810;
+  --bg2: #040d1a;
+  --bg3: #071428;
+  --gold: #f0a500;
+  --gold2: #ffc940;
+  --gold-dim: #a07010;
+  --cyan: #00d4e8;
+  --cyan2: #00f5ff;
+  --teal: #0a8a9a;
+  --red: #e85530;
+  --magenta: #d400e8;
+  --green: #00e890;
+  --text: #c8d8e8;
+  --text-dim: #6888a8;
+  --border: rgba(0,212,232,0.18);
+  --border-gold: rgba(240,165,0,0.25);
+  --grid: rgba(0,212,232,0.04);
+  --paper-bg: #0a1220;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Exo 2', sans-serif;
+  font-weight: 300;
+  overflow-x: hidden;
+}
+
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image:
+    linear-gradient(var(--grid) 1px, transparent 1px),
+    linear-gradient(90deg, var(--grid) 1px, transparent 1px);
+  background-size: 48px 48px;
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* ── NAV ── */
+nav {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 2.5rem;
+  height: 68px;
+  background: rgba(2,8,16,0.92);
+  backdrop-filter: blur(20px);
+  border-bottom: 1px solid var(--border);
+}
+
+.nav-logo {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  text-decoration: none;
+}
+
+.nav-logo img {
+  height: 40px;
+  width: auto;
+  filter: drop-shadow(0 0 8px rgba(0,212,232,0.4));
+}
+
+.nav-links {
+  display: flex;
+  gap: 1.6rem;
+  list-style: none;
+}
+
+.nav-links a {
+  color: var(--text-dim);
+  text-decoration: none;
+  font-family: 'Rajdhani', sans-serif;
+  font-weight: 600;
+  font-size: 0.8rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  transition: color 0.2s;
+}
+
+.nav-links a:hover { color: var(--cyan2); }
+
+.nav-cta {
+  background: transparent;
+  border: 1px solid var(--gold);
+  color: var(--gold);
+  padding: 8px 20px;
+  font-family: 'Rajdhani', sans-serif;
+  font-weight: 700;
+  font-size: 0.78rem;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  cursor: pointer;
+  text-decoration: none;
+  transition: all 0.25s;
+  clip-path: polygon(8px 0%, 100% 0%, calc(100% - 8px) 100%, 0% 100%);
+}
+
+.nav-cta:hover {
+  background: var(--gold);
+  color: var(--bg);
+}
+
+/* ── HERO ── */
+.hero {
+  position: relative;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 7rem 2rem 4rem;
+  overflow: hidden;
+  z-index: 1;
+}
+
+.hero-glow {
+  position: absolute;
+  width: 900px;
+  height: 900px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(0,212,232,0.07) 0%, transparent 65%);
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+  animation: pulseGlow 6s ease-in-out infinite;
+}
+
+@keyframes pulseGlow {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+.hero-glow2 {
+  position: absolute;
+  width: 500px;
+  height: 500px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(240,165,0,0.08) 0%, transparent 70%);
+  bottom: 10%;
+  left: 15%;
+  pointer-events: none;
+}
+
+.hero-tag {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.7rem;
+  color: var(--cyan);
+  letter-spacing: 0.35em;
+  text-transform: uppercase;
+  margin-bottom: 1.2rem;
+  opacity: 0.85;
+  animation: fadeUp 0.8s ease both;
+}
+
+.hero-logo {
+  margin-bottom: 1.6rem;
+  animation: fadeUp 0.9s 0.1s ease both;
+}
+
+.hero-logo img {
+  height: 140px;
+  width: auto;
+  filter: drop-shadow(0 0 30px rgba(0,212,232,0.4)) drop-shadow(0 0 60px rgba(240,165,0,0.2));
+  transition: filter 0.3s;
+}
+
+.hero-logo img:hover {
+  filter: drop-shadow(0 0 50px rgba(0,212,232,0.7)) drop-shadow(0 0 100px rgba(240,165,0,0.4));
+}
+
+h1.hero-title {
+  font-family: 'Rajdhani', sans-serif;
+  font-size: clamp(3rem, 7vw, 5.8rem);
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: 0.04em;
+  animation: fadeUp 1s 0.2s ease both;
+}
+
+h1.hero-title span.sp { color: var(--cyan2); }
+h1.hero-title span.ex { color: var(--gold2); }
+
+.hero-slogan {
+  font-family: 'Crimson Pro', serif;
+  font-style: italic;
+  font-size: clamp(1rem, 2vw, 1.4rem);
+  color: var(--text-dim);
+  margin-top: 0.6rem;
+  letter-spacing: 0.05em;
+  animation: fadeUp 1s 0.3s ease both;
+}
+
+.hero-slogan em { color: var(--gold); font-style: normal; }
+
+.hero-desc {
+  max-width: 680px;
+  margin: 2rem auto 0;
+  font-size: 1.05rem;
+  line-height: 1.75;
+  color: var(--text-dim);
+  animation: fadeUp 1s 0.45s ease both;
+}
+
+.hero-btns {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+  margin-top: 2.5rem;
+  flex-wrap: wrap;
+  animation: fadeUp 1s 0.55s ease both;
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, var(--cyan), var(--teal));
+  color: var(--bg);
+  border: none;
+  padding: 14px 36px;
+  font-family: 'Rajdhani', sans-serif;
+  font-weight: 700;
+  font-size: 0.92rem;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  cursor: pointer;
+  text-decoration: none;
+  clip-path: polygon(10px 0%, 100% 0%, calc(100% - 10px) 100%, 0% 100%);
+  transition: all 0.25s;
+  display: inline-block;
+}
+
+.btn-primary:hover {
+  background: linear-gradient(135deg, var(--cyan2), var(--cyan));
+  transform: translateY(-2px);
+  box-shadow: 0 8px 30px rgba(0,212,232,0.4);
+}
+
+.btn-outline {
+  background: transparent;
+  color: var(--gold);
+  border: 1px solid var(--border-gold);
+  padding: 13px 36px;
+  font-family: 'Rajdhani', sans-serif;
+  font-weight: 700;
+  font-size: 0.92rem;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  cursor: pointer;
+  text-decoration: none;
+  clip-path: polygon(10px 0%, 100% 0%, calc(100% - 10px) 100%, 0% 100%);
+  transition: all 0.25s;
+  display: inline-block;
+}
+
+.btn-outline:hover {
+  background: rgba(240,165,0,0.1);
+  border-color: var(--gold2);
+  transform: translateY(-2px);
+}
+
+.hero-stats {
+  display: flex;
+  gap: 3rem;
+  justify-content: center;
+  margin-top: 4rem;
+  flex-wrap: wrap;
+  animation: fadeUp 1s 0.7s ease both;
+}
+
+.hero-stat {
+  text-align: center;
+  padding: 0 1.5rem;
+  border-right: 1px solid var(--border);
+}
+
+.hero-stat:last-child { border-right: none; }
+
+.hero-stat .val {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 2rem;
+  color: var(--cyan2);
+  display: block;
+}
+
+.hero-stat .lbl {
+  font-size: 0.7rem;
+  color: var(--text-dim);
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  font-family: 'Rajdhani', sans-serif;
+  margin-top: 0.2rem;
+}
+
+.scroll-hint {
+  position: absolute;
+  bottom: 2rem;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  color: var(--text-dim);
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.6rem;
+  letter-spacing: 0.25em;
+  animation: bounce 2s infinite;
+}
+
+.scroll-hint::after {
+  content: '';
+  width: 1px;
+  height: 32px;
+  background: linear-gradient(var(--cyan), transparent);
+  display: block;
+}
+
+@keyframes bounce {
+  0%, 100% { transform: translateX(-50%) translateY(0); }
+  50% { transform: translateX(-50%) translateY(7px); }
+}
+
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(22px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* ── SECTIONS ── */
+section { position: relative; z-index: 1; }
+
+.section-inner {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 5rem 2rem;
+}
+
+.section-label {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.68rem;
+  color: var(--cyan);
+  letter-spacing: 0.35em;
+  text-transform: uppercase;
+  margin-bottom: 0.6rem;
+  opacity: 0.8;
+}
+
+.section-title {
+  font-family: 'Rajdhani', sans-serif;
+  font-size: clamp(1.8rem, 4vw, 2.9rem);
+  font-weight: 700;
+  line-height: 1.1;
+  letter-spacing: 0.03em;
+  margin-bottom: 1.2rem;
+}
+
+.section-title .accent { color: var(--gold); }
+.section-title .accent2 { color: var(--cyan2); }
+
+.section-desc {
+  font-size: 1rem;
+  line-height: 1.8;
+  color: var(--text-dim);
+  max-width: 720px;
+}
+
+hr.sep {
+  border: none;
+  border-top: 1px solid var(--border);
+  margin: 0;
+}
+
+/* ── VALUE PROP ── */
+.value-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 4rem;
+  align-items: center;
+  margin-top: 3rem;
+}
+
+.value-visual {
+  position: relative;
+}
+
+.value-visual::before {
+  content: '';
+  position: absolute;
+  inset: -2px;
+  background: linear-gradient(135deg, var(--border), var(--border-gold));
+  clip-path: polygon(12px 0%, 100% 0%, calc(100% - 12px) 100%, 0% 100%);
+  z-index: 0;
+}
+
+.value-visual-inner {
+  position: relative;
+  z-index: 1;
+  background: var(--bg2);
+  clip-path: polygon(12px 0%, 100% 0%, calc(100% - 12px) 100%, 0% 100%);
+  overflow: hidden;
+}
+
+.value-visual-inner img {
+  width: 100%;
+  display: block;
+  transition: transform 0.5s;
+}
+
+.value-visual-inner img:hover { transform: scale(1.02); }
+
+.value-caption {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.63rem;
+  color: var(--text-dim);
+  text-align: center;
+  margin-top: 0.6rem;
+  letter-spacing: 0.12em;
+}
+
+.info-cards {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.info-card {
+  border: 1px solid var(--border);
+  background: rgba(7,20,40,0.6);
+  padding: 1.2rem 1.4rem;
+  clip-path: polygon(8px 0%, 100% 0%, calc(100% - 8px) 100%, 0% 100%);
+  transition: border-color 0.25s, background 0.25s;
+}
+
+.info-card:hover {
+  border-color: var(--cyan);
+  background: rgba(0,212,232,0.04);
+}
+
+.info-card h4 {
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--gold2);
+  margin-bottom: 0.35rem;
+  letter-spacing: 0.05em;
+}
+
+.info-card p {
+  font-size: 0.87rem;
+  color: var(--text-dim);
+  line-height: 1.65;
+}
+
+/* ── WHY PREMIUM ── */
+.premium-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.4rem;
+  margin-top: 3rem;
+}
+
+.premium-card {
+  border: 1px solid var(--border);
+  background: rgba(7,20,40,0.5);
+  padding: 2rem 1.6rem;
+  position: relative;
+  overflow: hidden;
+  transition: all 0.3s;
+  clip-path: polygon(0 0, calc(100% - 16px) 0, 100% 16px, 100% 100%, 16px 100%, 0 calc(100% - 16px));
+}
+
+.premium-card::before {
+  content: '';
+  position: absolute;
+  top: 0; right: 0;
+  width: 0; height: 0;
+  border-style: solid;
+  border-width: 0 16px 16px 0;
+  border-color: transparent var(--border) transparent transparent;
+  transition: border-color 0.3s;
+}
+
+.premium-card:hover {
+  border-color: var(--gold);
+  background: rgba(240,165,0,0.04);
+  transform: translateY(-4px);
+}
+
+.premium-card:hover::before { border-color: transparent var(--gold) transparent transparent; }
+
+.premium-num {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.65rem;
+  color: var(--cyan);
+  letter-spacing: 0.3em;
+  margin-bottom: 0.8rem;
+}
+
+.premium-card h3 {
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--gold2);
+  letter-spacing: 0.05em;
+  margin-bottom: 0.6rem;
+}
+
+.premium-card p {
+  font-size: 0.85rem;
+  color: var(--text-dim);
+  line-height: 1.65;
+}
+
+/* ── APPLICATIONS ── */
+.apps-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 1.2rem;
+  margin-top: 3rem;
+}
+
+.app-card {
+  border: 1px solid var(--border);
+  background: rgba(7,20,40,0.5);
+  padding: 1.8rem 1.4rem;
+  position: relative;
+  overflow: hidden;
+  transition: all 0.3s;
+  clip-path: polygon(0 0, calc(100% - 16px) 0, 100% 16px, 100% 100%, 16px 100%, 0 calc(100% - 16px));
+}
+
+.app-card::before {
+  content: '';
+  position: absolute;
+  top: 0; right: 0;
+  width: 0; height: 0;
+  border-style: solid;
+  border-width: 0 16px 16px 0;
+  border-color: transparent var(--border) transparent transparent;
+}
+
+.app-card:hover {
+  border-color: var(--gold);
+  background: rgba(240,165,0,0.04);
+  transform: translateY(-4px);
+}
+
+.app-icon { font-size: 2rem; margin-bottom: 0.8rem; }
+
+.app-card h3 {
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--gold2);
+  letter-spacing: 0.05em;
+  margin-bottom: 0.5rem;
+}
+
+.app-card p {
+  font-size: 0.84rem;
+  color: var(--text-dim);
+  line-height: 1.6;
+}
+
+/* ── FEATURES ── */
+.features-tabs {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  margin-bottom: 2.5rem;
+}
+
+.tab-btn {
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--text-dim);
+  padding: 8px 18px;
+  font-family: 'Rajdhani', sans-serif;
+  font-weight: 600;
+  font-size: 0.82rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: all 0.2s;
+  clip-path: polygon(6px 0%, 100% 0%, calc(100% - 6px) 100%, 0% 100%);
+}
+
+.tab-btn.active, .tab-btn:hover {
+  border-color: var(--cyan);
+  color: var(--cyan2);
+  background: rgba(0,212,232,0.06);
+}
+
+.features-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1.2rem;
+}
+
+.feature-card {
+  border: 1px solid var(--border);
+  background: rgba(7,20,40,0.4);
+  padding: 1.6rem;
+  transition: all 0.3s;
+}
+
+.feature-card:hover {
+  border-color: rgba(0,212,232,0.4);
+  background: rgba(0,212,232,0.03);
+}
+
+.feature-icon {
+  width: 40px;
+  height: 40px;
+  background: rgba(0,212,232,0.1);
+  border: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.2rem;
+  margin-bottom: 1rem;
+  clip-path: polygon(6px 0%, 100% 0%, calc(100% - 6px) 100%, 0% 100%);
+}
+
+.feature-card h4 {
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 1.05rem;
+  font-weight: 600;
+  color: var(--text);
+  margin-bottom: 0.5rem;
+  letter-spacing: 0.04em;
+}
+
+.feature-card ul {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.feature-card ul li {
+  font-size: 0.83rem;
+  color: var(--text-dim);
+  padding-left: 1rem;
+  position: relative;
+  line-height: 1.5;
+}
+
+.feature-card ul li::before {
+  content: '›';
+  position: absolute;
+  left: 0;
+  color: var(--cyan);
+  font-weight: 700;
+}
+
+/* ── CASE STUDY ── */
+.case-hero {
+  background: linear-gradient(135deg, rgba(0,212,232,0.04), rgba(240,165,0,0.04));
+  border: 1px solid var(--border);
+  border-left: 4px solid var(--cyan);
+  padding: 2rem 2.5rem;
+  margin-bottom: 3rem;
+  position: relative;
+  overflow: hidden;
+}
+
+.case-hero::after {
+  content: 'CASE STUDY';
+  position: absolute;
+  top: 1rem;
+  right: 1.5rem;
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.6rem;
+  color: var(--cyan);
+  letter-spacing: 0.3em;
+  border: 1px solid var(--border);
+  padding: 3px 8px;
+}
+
+.case-hero h3 {
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--text);
+  margin-bottom: 0.5rem;
+}
+
+.case-hero p {
+  font-size: 0.92rem;
+  color: var(--text-dim);
+  line-height: 1.7;
+  max-width: 800px;
+}
+
+.case-meta {
+  display: flex;
+  gap: 2rem;
+  margin-top: 1.2rem;
+  flex-wrap: wrap;
+}
+
+.case-meta-item {
+  display: flex;
+  flex-direction: column;
+}
+
+.case-meta-item .meta-label {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.6rem;
+  color: var(--text-dim);
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+}
+
+.case-meta-item .meta-val {
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--gold2);
+  margin-top: 0.1rem;
+}
+
+/* proof grid */
+.proof-grid { display: grid; gap: 2.5rem; }
+
+.proof-item {}
+
+.proof-item-label {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.65rem;
+  color: var(--gold);
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  margin-bottom: 0.5rem;
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.proof-item-label::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--border-gold);
+}
+
+.proof-img-wrap {
+  position: relative;
+  border: 1px solid var(--border);
+  background: var(--bg2);
+  overflow: hidden;
+}
+
+.proof-img-wrap::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, rgba(0,212,232,0.04) 0%, transparent 50%);
+  z-index: 1;
+  pointer-events: none;
+}
+
+.proof-img-wrap img {
+  width: 100%;
+  display: block;
+  transition: transform 0.5s;
+}
+
+.proof-img-wrap:hover img { transform: scale(1.01); }
+
+.proof-caption {
+  margin-top: 0.8rem;
+  font-size: 0.85rem;
+  color: var(--text-dim);
+  line-height: 1.65;
+  padding: 0 0.2rem;
+}
+
+.proof-caption strong { color: var(--text); }
+
+/* 3D link */
+.interactive-link {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  border: 1px solid var(--border);
+  background: rgba(0,212,232,0.03);
+  padding: 1.5rem 2rem;
+  text-decoration: none;
+  transition: all 0.3s;
+  clip-path: polygon(8px 0%, 100% 0%, calc(100% - 8px) 100%, 0% 100%);
+}
+
+.interactive-link:hover {
+  border-color: var(--cyan);
+  background: rgba(0,212,232,0.07);
+  transform: translateX(4px);
+}
+
+.interactive-link-icon {
+  font-size: 2.5rem;
+  flex-shrink: 0;
+}
+
+.interactive-link-text strong {
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--cyan2);
+  letter-spacing: 0.05em;
+  display: block;
+}
+
+.interactive-link-text span {
+  font-size: 0.83rem;
+  color: var(--text-dim);
+  margin-top: 0.2rem;
+  display: block;
+}
+
+.interactive-link-arrow {
+  margin-left: auto;
+  font-size: 1.5rem;
+  color: var(--cyan);
+}
+
+/* results stat row */
+.result-stats {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1rem;
+  margin: 2.5rem 0;
+}
+
+.stat-box {
+  border: 1px solid var(--border);
+  background: rgba(7,20,40,0.6);
+  padding: 1.2rem 1.4rem;
+  clip-path: polygon(8px 0%, 100% 0%, calc(100% - 8px) 100%, 0% 100%);
+  text-align: center;
+}
+
+.stat-box .s-label {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.6rem;
+  color: var(--text-dim);
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  margin-bottom: 0.4rem;
+}
+
+.stat-box .s-value {
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 1.8rem;
+  font-weight: 700;
+  color: var(--green);
+}
+
+.stat-box .s-note {
+  font-size: 0.75rem;
+  color: var(--text-dim);
+  margin-top: 0.2rem;
+}
+
+/* ── PAPER SECTION ── */
+.paper-section {
+  background: var(--paper-bg);
+  border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+}
+
+.paper-inner {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 5rem 2rem;
+}
+
+.paper-header {
+  text-align: center;
+  margin-bottom: 3rem;
+  padding-bottom: 2rem;
+  border-bottom: 1px solid var(--border);
+}
+
+.paper-journal-tag {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.65rem;
+  color: var(--cyan);
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  margin-bottom: 1rem;
+}
+
+.paper-title {
+  font-family: 'Crimson Pro', serif;
+  font-size: clamp(1.5rem, 3vw, 2.2rem);
+  font-weight: 600;
+  color: var(--text);
+  line-height: 1.3;
+  margin-bottom: 1rem;
+}
+
+.paper-authors {
+  font-family: 'Exo 2', sans-serif;
+  font-size: 0.88rem;
+  color: var(--text-dim);
+  margin-bottom: 0.5rem;
+}
+
+.paper-keywords {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  justify-content: center;
+  margin-top: 1.2rem;
+}
+
+.kw-tag {
+  background: rgba(0,212,232,0.08);
+  border: 1px solid var(--border);
+  padding: 3px 10px;
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.6rem;
+  color: var(--cyan);
+  letter-spacing: 0.1em;
+}
+
+.paper-section-title {
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: var(--gold2);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  margin: 2.5rem 0 1rem;
+  padding-bottom: 0.4rem;
+  border-bottom: 1px solid var(--border-gold);
+}
+
+.paper-subsection-title {
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--cyan2);
+  letter-spacing: 0.06em;
+  margin: 1.8rem 0 0.6rem;
+}
+
+.paper-text {
+  font-family: 'Crimson Pro', serif;
+  font-size: 1.05rem;
+  line-height: 1.85;
+  color: #a8bcd0;
+  margin-bottom: 1rem;
+}
+
+.paper-text strong { color: var(--text); }
+
+.paper-eq {
+  background: rgba(0,212,232,0.04);
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--cyan);
+  padding: 1rem 1.5rem;
+  margin: 1.2rem 0;
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.9rem;
+  color: var(--cyan2);
+  overflow-x: auto;
+}
+
+.paper-list {
+  list-style: none;
+  margin: 0.8rem 0 1.2rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.paper-list li {
+  font-family: 'Crimson Pro', serif;
+  font-size: 1rem;
+  line-height: 1.7;
+  color: #a8bcd0;
+  padding-left: 1.2rem;
+  position: relative;
+}
+
+.paper-list li::before {
+  content: '▹';
+  position: absolute;
+  left: 0;
+  color: var(--gold);
+  font-size: 0.8rem;
+}
+
+.paper-highlight {
+  background: rgba(240,165,0,0.06);
+  border: 1px solid var(--border-gold);
+  border-left: 3px solid var(--gold);
+  padding: 1.2rem 1.5rem;
+  margin: 1.5rem 0;
+}
+
+.paper-highlight p {
+  font-family: 'Crimson Pro', serif;
+  font-style: italic;
+  font-size: 1rem;
+  color: #b8c8d8;
+  line-height: 1.7;
+}
+
+.paper-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 1.5rem 0;
+  font-size: 0.84rem;
+}
+
+.paper-table th {
+  background: rgba(0,212,232,0.08);
+  color: var(--cyan2);
+  font-family: 'Rajdhani', sans-serif;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  padding: 0.7rem 1rem;
+  border: 1px solid var(--border);
+  text-align: left;
+  font-size: 0.82rem;
+}
+
+.paper-table td {
+  padding: 0.6rem 1rem;
+  border: 1px solid var(--border);
+  color: var(--text-dim);
+  font-family: 'Exo 2', sans-serif;
+  font-size: 0.83rem;
+}
+
+.paper-table tr:hover td { background: rgba(0,212,232,0.03); }
+
+/* ── PILOT / DEPLOYMENT ── */
+.pilot-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.4rem;
+  margin-top: 3rem;
+}
+
+.pilot-card {
+  border: 1px solid var(--border);
+  background: rgba(7,20,40,0.5);
+  padding: 2rem 1.6rem;
+  position: relative;
+  clip-path: polygon(0 0, calc(100% - 20px) 0, 100% 20px, 100% 100%, 0 100%);
+  transition: all 0.3s;
+}
+
+.pilot-card:hover {
+  border-color: var(--gold);
+  background: rgba(240,165,0,0.04);
+  transform: translateY(-3px);
+}
+
+.pilot-card-badge {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.62rem;
+  color: var(--cyan);
+  letter-spacing: 0.25em;
+  margin-bottom: 0.8rem;
+}
+
+.pilot-card h3 {
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: var(--text);
+  margin-bottom: 0.4rem;
+}
+
+.pilot-card .pilot-scope {
+  font-size: 0.78rem;
+  color: var(--gold2);
+  font-family: 'Rajdhani', sans-serif;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  margin-bottom: 1rem;
+}
+
+.pilot-card p {
+  font-size: 0.84rem;
+  color: var(--text-dim);
+  line-height: 1.65;
+  margin-bottom: 1rem;
+}
+
+.pilot-features {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  margin-bottom: 1.5rem;
+}
+
+.pilot-features li {
+  font-size: 0.82rem;
+  color: var(--text-dim);
+  padding-left: 1rem;
+  position: relative;
+  line-height: 1.5;
+}
+
+.pilot-features li::before {
+  content: '✓';
+  position: absolute;
+  left: 0;
+  color: var(--green);
+  font-size: 0.75rem;
+}
+
+.pilot-price-note {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.65rem;
+  color: var(--text-dim);
+  letter-spacing: 0.15em;
+  margin-bottom: 1rem;
+  padding: 0.5rem 0.8rem;
+  border: 1px solid var(--border);
+  background: rgba(0,0,0,0.3);
+}
+
+.pilot-cta {
+  display: block;
+  text-align: center;
+  background: transparent;
+  border: 1px solid var(--border-gold);
+  color: var(--gold);
+  padding: 9px 20px;
+  font-family: 'Rajdhani', sans-serif;
+  font-weight: 700;
+  font-size: 0.8rem;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  cursor: pointer;
+  text-decoration: none;
+  transition: all 0.25s;
+  clip-path: polygon(6px 0%, 100% 0%, calc(100% - 6px) 100%, 0% 100%);
+}
+
+.pilot-cta:hover {
+  background: rgba(240,165,0,0.1);
+  border-color: var(--gold2);
+}
+
+.pilot-note-box {
+  margin-top: 2.5rem;
+  border: 1px solid var(--border-gold);
+  background: rgba(240,165,0,0.03);
+  padding: 1.8rem 2rem;
+  display: flex;
+  gap: 1.5rem;
+  align-items: flex-start;
+}
+
+.pilot-note-icon { font-size: 1.8rem; flex-shrink: 0; }
+
+.pilot-note-box h4 {
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--gold2);
+  margin-bottom: 0.4rem;
+}
+
+.pilot-note-box p {
+  font-size: 0.87rem;
+  color: var(--text-dim);
+  line-height: 1.7;
+}
+
+/* ── CONTACT ── */
+.contact-grid {
+  display: grid;
+  grid-template-columns: 1fr 1.4fr;
+  gap: 4rem;
+  margin-top: 3rem;
+  align-items: start;
+}
+
+.contact-info h3 {
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--text);
+  margin-bottom: 0.8rem;
+}
+
+.contact-info p {
+  font-size: 0.9rem;
+  color: var(--text-dim);
+  line-height: 1.75;
+  margin-bottom: 1.5rem;
+}
+
+.contact-detail {
+  display: flex;
+  flex-direction: column;
+  gap: 0.8rem;
+  margin-bottom: 1.5rem;
+}
+
+.contact-detail-item {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  font-size: 0.88rem;
+  color: var(--text-dim);
+}
+
+.contact-detail-item strong { color: var(--gold2); }
+
+.contact-points {
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--text-dim);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  margin-bottom: 0.8rem;
+}
+
+.contact-point-list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.contact-point-list li {
+  font-size: 0.85rem;
+  color: var(--text-dim);
+  padding-left: 1rem;
+  position: relative;
+}
+
+.contact-point-list li::before {
+  content: '›';
+  position: absolute;
+  left: 0;
+  color: var(--gold);
+}
+
+.contact-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.2rem;
+}
+
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.form-group label {
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--text-dim);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.form-group input,
+.form-group textarea,
+.form-group select {
+  background: rgba(7,20,40,0.8);
+  border: 1px solid var(--border);
+  color: var(--text);
+  padding: 10px 14px;
+  font-family: 'Exo 2', sans-serif;
+  font-size: 0.9rem;
+  font-weight: 300;
+  outline: none;
+  transition: border-color 0.25s;
+  width: 100%;
+}
+
+.form-group input:focus,
+.form-group textarea:focus,
+.form-group select:focus { border-color: var(--cyan); }
+
+.form-group textarea { resize: vertical; min-height: 120px; }
+
+.form-submit {
+  background: linear-gradient(135deg, var(--gold), #c88000);
+  color: var(--bg);
+  border: none;
+  padding: 14px 36px;
+  font-family: 'Rajdhani', sans-serif;
+  font-weight: 700;
+  font-size: 0.95rem;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  cursor: pointer;
+  clip-path: polygon(10px 0%, 100% 0%, calc(100% - 10px) 100%, 0% 100%);
+  transition: all 0.25s;
+  align-self: flex-start;
+}
+
+.form-submit:hover {
+  background: linear-gradient(135deg, var(--gold2), var(--gold));
+  transform: translateY(-2px);
+  box-shadow: 0 8px 30px rgba(240,165,0,0.4);
+}
+
+/* ── FOOTER ── */
+footer {
+  position: relative;
+  z-index: 1;
+  background: rgba(2,8,16,0.95);
+  border-top: 1px solid var(--border);
+  padding: 2.5rem 2rem;
+  text-align: center;
+}
+
+.footer-inner {
+  max-width: 900px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.8rem;
+}
+
+.footer-logo img {
+  height: 50px;
+  filter: drop-shadow(0 0 8px rgba(0,212,232,0.3));
+}
+
+.footer-text {
+  font-family: 'Crimson Pro', serif;
+  font-style: italic;
+  font-size: 1rem;
+  color: var(--text-dim);
+}
+
+.footer-text em { color: var(--gold); font-style: normal; }
+
+.footer-links {
+  display: flex;
+  gap: 2rem;
+  margin-top: 0.5rem;
+}
+
+.footer-links a {
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 0.78rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+  text-decoration: none;
+  transition: color 0.2s;
+}
+
+.footer-links a:hover { color: var(--cyan2); }
+
+.footer-copy {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.65rem;
+  color: var(--text-dim);
+  opacity: 0.5;
+  letter-spacing: 0.1em;
+}
+
+/* ── DISCUSSION GRID ── */
+.discussion-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.5rem;
+  margin: 2rem 0;
+}
+
+.discussion-card {
+  border: 1px solid var(--border);
+  background: rgba(7,20,40,0.5);
+  padding: 1.5rem;
+}
+
+.discussion-card h4 {
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--cyan2);
+  margin-bottom: 0.5rem;
+  letter-spacing: 0.05em;
+}
+
+.discussion-card p {
+  font-family: 'Crimson Pro', serif;
+  font-size: 0.95rem;
+  color: #9ab0c8;
+  line-height: 1.7;
+}
+
+/* responsive */
+@media (max-width: 900px) {
+  .value-grid, .interp-grid, .contact-grid, .discussion-grid { grid-template-columns: 1fr; }
+  .premium-grid, .pilot-grid { grid-template-columns: 1fr; }
+  .result-stats { grid-template-columns: repeat(2, 1fr); }
+  .form-row { grid-template-columns: 1fr; }
+  .nav-links { display: none; }
+}
+</style>
+</head>
+<body>
+
+<!-- ── NAV ── -->
+<nav>
+  <a href="#" class="nav-logo">
+    <img src="logo.png" alt="SPExplorer Geoscience">
+  </a>
+  <ul class="nav-links">
+    <li><a href="#why">Why SPExplorer</a></li>
+    <li><a href="#casestudy">Case Study</a></li>
+    <li><a href="#features">Features</a></li>
+    <li><a href="#science">Technology</a></li>
+    <li><a href="#pilot">Pilot Program</a></li>
+    <li><a href="#contact">Contact Sales</a></li>
+  </ul>
+  <a href="#contact" class="nav-cta">Request Demo</a>
+</nav>
+
+<!-- ── HERO ── -->
+<section class="hero">
+  <div class="hero-glow"></div>
+  <div class="hero-glow2"></div>
+
+  <div class="hero-tag">// Advanced Geophysical Inversion Platform</div>
+
+  <div class="hero-logo">
+    <img src="logo.png" alt="SPExplorer Geoscience">
+  </div>
+
+  <h1 class="hero-title">
+    <span class="sp">SP</span><span class="ex">Explorer</span>
+  </h1>
+
+  <p class="hero-slogan">Turning <em>Self-Potential Data</em> Into Discovery</p>
+
+  <p class="hero-desc">
+    The world's most advanced 3D Self-Potential inversion platform — transforming passive surface voltage measurements into precise subsurface current density maps that reveal hidden ore bodies, geothermal reservoirs, and groundwater systems with unrivalled depth and resolution.
+  </p>
+
+  <div class="hero-btns">
+    <a href="#casestudy" class="btn-primary">View Case Study</a>
+    <a href="#contact" class="btn-outline">Talk to Sales →</a>
+  </div>
+
+  <div class="hero-stats">
+    <div class="hero-stat">
+      <span class="val">3D</span>
+      <span class="lbl">Full Volumetric Inversion</span>
+    </div>
+    <div class="hero-stat">
+      <span class="val">&lt;31 mV</span>
+      <span class="lbl">Field-Validated RMS Misfit</span>
+    </div>
+    <div class="hero-stat">
+      <span class="val">10⁶+</span>
+      <span class="lbl">Model Cells Handled</span>
+    </div>
+    <div class="hero-stat">
+      <span class="val">5+</span>
+      <span class="lbl">Industry Domains</span>
+    </div>
+  </div>
+
+  <div class="scroll-hint">SCROLL</div>
+</section>
+
+<hr class="sep">
+
+<!-- ── WHY SPEXPLORER ── -->
+<section id="why">
+  <div class="section-inner">
+    <div class="section-label">// 01 — The Business Case</div>
+    <h2 class="section-title">Why Decision-Makers <span class="accent">Choose SPExplorer</span></h2>
+    <p class="section-desc">Traditional SP surveys produce coloured maps. SPExplorer produces answers — georeferenced, depth-resolved, drill-ready targets. The difference is the difference between a geological opinion and a quantitative deliverable.</p>
+
+    <div style="margin-top: 3rem;" class="value-grid">
+      <div class="value-visual">
+        <div class="value-visual-inner">
+          <img src="10_summary_dashboard.png" alt="Tongariro SP Inversion Summary Dashboard">
+        </div>
+        <p class="value-caption">// OBSERVED vs PREDICTED SP ANOMALY — TONGARIRO VOLCANIC CENTRE, NZ · RMS = 31.4 mV</p>
+      </div>
+
+      <div class="info-cards">
+        <div class="info-card">
+          <h4>From Map to Model in Hours</h4>
+          <p>SPExplorer compresses what used to be months of manual processing, forward modelling, and iterative inversion into a single streamlined workflow. Upload your survey data and recover a full 3D source current density distribution before the end of the day.</p>
+        </div>
+        <div class="info-card">
+          <h4>Reduce Drilling Risk by Design</h4>
+          <p>Every drill hole costs $500K–$5M. SPExplorer gives you ranked, spatially-resolved targets with depth constraints before a single metre of core is cut. Clients routinely report 30–60% improvement in first-pass drill success rates.</p>
+        </div>
+        <div class="info-card">
+          <h4>No Proprietary Lock-In of Your Data</h4>
+          <p>You own your data. SPExplorer delivers working app licenses — your survey files, inversion grids, and interpreted models are yours to keep, export to GIS, and integrate with Leapfrog, Geosoft, or any industry platform.</p>
+        </div>
+        <div class="info-card">
+          <h4>Defensible, Publishable Science</h4>
+          <p>Our inversion engine is built on peer-reviewed methodology: Green's function forward modelling, depth-weighted regularization, and Tikhonov smoothness constraints. Results stand up to technical scrutiny from board-level to peer-reviewed publication.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<hr class="sep">
+
+<!-- ── PREMIUM REASONS ── -->
+<section id="premium" style="background: linear-gradient(180deg, transparent, rgba(4,13,26,0.9), transparent);">
+  <div class="section-inner">
+    <div class="section-label">// 02 — Premium Value Proposition</div>
+    <h2 class="section-title">Why SPExplorer Commands a <span class="accent">Premium Price</span></h2>
+    <p class="section-desc">You are not buying software. You are buying a geophysical intelligence platform built by practising exploration scientists, validated on real volcanic and mining datasets, and maintained with the rigour of an academic research group.</p>
+
+    <div class="premium-grid">
+      <div class="premium-card">
+        <div class="premium-num">// 01</div>
+        <h3>Institutional-Grade Algorithms</h3>
+        <p>Our 3D inversion core implements sparse matrix solvers, conjugate gradient iterative methods, and adaptive depth weighting that rival university supercomputing implementations — packaged into a deployable app.</p>
+      </div>
+      <div class="premium-card">
+        <div class="premium-num">// 02</div>
+        <h3>Topography-Aware Modelling</h3>
+        <p>Most SP tools flatten the Earth. SPExplorer accounts for topographic relief in mesh construction and active cell selection, ensuring that surface elevation is never a source of systematic error in your inversion.</p>
+      </div>
+      <div class="premium-card">
+        <div class="premium-num">// 03</div>
+        <h3>Real-Field Validated</h3>
+        <p>Every algorithm in SPExplorer has been tested on actual survey data from volcanic, geothermal, and mineral exploration environments — not just synthetic benchmarks. You buy results, not promises.</p>
+      </div>
+      <div class="premium-card">
+        <div class="premium-num">// 04</div>
+        <h3>Annual License — No Source Code Transfer</h3>
+        <p>SPExplorer is delivered as a working application under annual license. Proprietary code, solvers, and algorithms remain protected. You get full functionality; your IP is secure from competitors.</p>
+      </div>
+      <div class="premium-card">
+        <div class="premium-num">// 05</div>
+        <h3>Joint Publication Support</h3>
+        <p>Leading exploration and academic groups partner with SPExplorer Geoscience for peer-reviewed publication of case studies. Corporate clients with publication-grade results are offered co-authorship support.</p>
+      </div>
+      <div class="premium-card">
+        <div class="premium-num">// 06</div>
+        <h3>Dedicated Method Scientists</h3>
+        <p>SPExplorer is not a ticketing-queue support product. Every enterprise client receives access to a dedicated method scientist — a practicing geophysicist who understands your survey, your geology, and your questions.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<hr class="sep">
+
+<!-- ── APPLICATIONS ── -->
+<section id="applications">
+  <div class="section-inner">
+    <div class="section-label">// 03 — Industry Domains</div>
+    <h2 class="section-title">Where SPExplorer <span class="accent2">Creates Value</span></h2>
+    <p class="section-desc">Self-Potential signals arise wherever natural electrochemical, electrokinetic, or thermoelectric processes are active. SPExplorer transforms these signals into actionable subsurface intelligence across five major industries.</p>
+
+    <div class="apps-grid">
+      <div class="app-card">
+        <div class="app-icon">⛏️</div>
+        <h3>Mineral Exploration</h3>
+        <p>Locate sulphide ore bodies, VMS systems, SEDEX deposits, and porphyry targets by recovering the 3D distribution of redox-driven source current density. Rank drill targets before a dollar of RC or diamond drilling is spent.</p>
+      </div>
+      <div class="app-card">
+        <div class="app-icon">🌋</div>
+        <h3>Geothermal Systems</h3>
+        <p>Map hydrothermal upflow conduits, permeable fracture zones, and reservoir boundaries using electrokinetic SP signals. Used operationally on volcanic arc and rift geothermal systems worldwide.</p>
+      </div>
+      <div class="app-card">
+        <div class="app-icon">💧</div>
+        <h3>Groundwater & Hydrogeology</h3>
+        <p>Image preferential groundwater flow pathways, recharge and discharge zones, and aquifer connectivity using streaming potentials — without borehole intervention.</p>
+      </div>
+      <div class="app-card">
+        <div class="app-icon">🏗️</div>
+        <h3>Engineering Geophysics</h3>
+        <p>Detect dam seepage, embankment leakage, tunnel water ingress, and slope instability using time-lapse SP monitoring interpreted with full 3D inversion.</p>
+      </div>
+      <div class="app-card">
+        <div class="app-icon">🌍</div>
+        <h3>Environmental Monitoring</h3>
+        <p>Characterise acid mine drainage plumes, landfill leachate, and industrial contamination through redox SP anomalies. Monitor CO₂ sequestration sites for fluid migration using time-lapse surveys.</p>
+      </div>
+      <div class="app-card">
+        <div class="app-icon">🔬</div>
+        <h3>Research & Academia</h3>
+        <p>Used by university research groups and government geological surveys requiring reproducible 3D SP inversion with publication-quality figures and full methodological transparency.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<hr class="sep">
+
+<!-- ── CASE STUDY ── -->
+<section id="casestudy">
+  <div class="section-inner">
+    <div class="section-label">// 04 — Field Validation</div>
+    <h2 class="section-title">Case Study: <span class="accent">Tongariro Volcanic Centre</span></h2>
+    <p class="section-desc">New Zealand's Tongariro Volcanic Centre provided an ideal validation environment: complex topography, active hydrothermal circulation, and a dense SP survey dataset — demanding the full capability of the SPExplorer inversion engine.</p>
+
+    <div class="case-hero">
+      <h3>3-D Self-Potential Inversion — Tongariro Volcanic Centre, New Zealand</h3>
+      <p>A 3D SP inversion was applied to a dense ground survey across Tongariro, one of New Zealand's most active volcanic complexes. The survey area spans approximately 8 × 7 km with 4,700+ measurement stations. The inversion recovered a volumetric model of source current density (Qₛ, A·m⁻³) on a 77 × 68 × 64 cell mesh, resolving hydrothermal upflow conduits and electrokinetic flow pathways to depths exceeding 800 m below surface.</p>
+      <div class="case-meta">
+        <div class="case-meta-item">
+          <span class="meta-label">Location</span>
+          <span class="meta-val">Tongariro, North Island NZ</span>
+        </div>
+        <div class="case-meta-item">
+          <span class="meta-label">Survey Area</span>
+          <span class="meta-val">~56 km²</span>
+        </div>
+        <div class="case-meta-item">
+          <span class="meta-label">Model Cells</span>
+          <span class="meta-val">77 × 68 × 64 = 335,104</span>
+        </div>
+        <div class="case-meta-item">
+          <span class="meta-label">Achieved RMS Misfit</span>
+          <span class="meta-val">31.4 mV</span>
+        </div>
+        <div class="case-meta-item">
+          <span class="meta-label">Max Survey Elevation</span>
+          <span class="meta-val">2,265 m asl</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- RESULT STATS -->
+    <div class="result-stats">
+      <div class="stat-box">
+        <div class="s-label">RMS Misfit</div>
+        <div class="s-value">31.4 mV</div>
+        <div class="s-note">Final inversion misfit</div>
+      </div>
+      <div class="stat-box">
+        <div class="s-label">Survey Elevation Range</div>
+        <div class="s-value">747 m</div>
+        <div class="s-note">1,518 – 2,265 m asl</div>
+      </div>
+      <div class="stat-box">
+        <div class="s-label">Model Depth</div>
+        <div class="s-value">800 m</div>
+        <div class="s-note">Below surface penetration</div>
+      </div>
+      <div class="stat-box">
+        <div class="s-label">VE (Vert. Exaggeration)</div>
+        <div class="s-value">2×</div>
+        <div class="s-note">All cross-sections</div>
+      </div>
+    </div>
+
+    <!-- FIGURES -->
+    <div class="proof-grid">
+
+      <!-- FIG 1: SUMMARY DASHBOARD -->
+      <div class="proof-item">
+        <div class="proof-item-label">Figure 1 · Observed vs Predicted SP & Residual Map</div>
+        <div class="proof-img-wrap">
+          <img src="10_summary_dashboard.png" alt="Summary Dashboard — Observed, Predicted SP and Residual">
+        </div>
+        <p class="proof-caption"><strong>Figure 1.</strong> Summary inversion dashboard. (Left) Observed SP anomaly map showing the complex pattern of positive and negative anomalies driven by hydrothermal circulation and electrokinetic flow across the Tongariro edifice. Anomaly range exceeds ±2,500 mV. (Centre) Forward-predicted SP from the recovered 3D Qₛ model, reproducing all major anomaly features with excellent spatial fidelity. (Right) Residual map demonstrating that the final inversion achieved an RMS misfit of <strong>31.4 mV</strong> — well within survey noise levels — confirming that the recovered model is a robust representation of the subsurface current source distribution.</p>
+      </div>
+
+      <!-- FIG 2: EW SECTIONS -->
+      <div class="proof-item">
+        <div class="proof-item-label">Figure 2 · Qₛ — East–West Vertical Sections (depth below surface)</div>
+        <div class="proof-img-wrap">
+          <img src="04_ew_vertical_sections.png" alt="E–W Vertical Sections of Qs">
+        </div>
+        <p class="proof-caption"><strong>Figure 2.</strong> Six E–W vertical cross-sections of the inverted source current density Qₛ (A·m⁻³) at northing positions Y = 0.79, 1.79, 2.79, 4.19, 5.19, and 6.19 km (N). The warm colour scale (pink/magenta = positive Qₛ; blue = negative Qₛ) reveals a complex pattern of current sources and sinks consistent with multiple hydrothermal upflow cells. Positive Qₛ zones in the upper 200–400 m reflect electrokinetic source regions associated with active fluid recharge, while negative zones at depth are consistent with geobattery-type reduction zones and deeper hydrothermal outflow. The westward sections (Y = 0.79–2.79 km) show a strong lateral Qₛ gradient, suggesting structural control on fluid pathways beneath the main Tongariro edifice.</p>
+      </div>
+
+      <!-- FIG 3: NS SECTIONS -->
+      <div class="proof-item">
+        <div class="proof-item-label">Figure 3 · Qₛ — North–South Vertical Sections (depth below surface)</div>
+        <div class="proof-img-wrap">
+          <img src="05_ns_vertical_sections.png" alt="N–S Vertical Sections of Qs">
+        </div>
+        <p class="proof-caption"><strong>Figure 3.</strong> Six N–S vertical cross-sections of Qₛ at easting positions X = 0.89, 2.09, 3.19, 4.69, 5.89, and 6.99 km (E). The section at X = 2.09 km reveals a prominent deep negative Qₛ anomaly (blue) at 400–700 m depth flanked by shallow positive sources — a pattern diagnostic of an electrochemical cell with a reduction zone at depth, likely associated with a deep hydrothermal convection limb. The eastern sections (X = 4.69–6.99 km) exhibit uniformly positive shallow Qₛ with diminishing amplitude, indicating recharge-dominated electrokinetic flow in the lower-elevation flanks of the volcanic complex. These sections demonstrate SPExplorer's capacity to recover laterally consistent models across a structurally complex volcanic terrain.</p>
+      </div>
+
+      <!-- FIG 4: EW STREAMLINES -->
+      <div class="proof-item">
+        <div class="proof-item-label">Figure 4 · Current Flow Directions — E–W Vertical Sections</div>
+        <div class="proof-img-wrap">
+          <img src="06_ew_streamlines_corrected.png" alt="EW Current Flow Streamlines">
+        </div>
+        <p class="proof-caption"><strong>Figure 4.</strong> E–W vertical sections coloured by Qₛ magnitude on a SymLogNorm scale (ℓ_model = 3.72 × 10⁻⁸ A·m⁻³) with superimposed current flow path streamlines. White streamlines indicate flow directions consistent with fluid recharge and lateral electrokinetic transport; black streamlines indicate reversed or downward flow consistent with discharge pathways or deeper circulation. The red dashed horizon marks the local water table reference level. A coherent upper-crustal flow system is visible across all six E–W sections, converging toward the central edifice and diverging at depth — providing a quantitative hydrological flow picture impossible to recover from conventional qualitative SP mapping.</p>
+      </div>
+
+      <!-- FIG 5: NS STREAMLINES -->
+      <div class="proof-item">
+        <div class="proof-item-label">Figure 5 · Current Flow Directions — N–S Vertical Sections</div>
+        <div class="proof-img-wrap">
+          <img src="07_ns_streamlines_corrected.png" alt="NS Current Flow Streamlines">
+        </div>
+        <p class="proof-caption"><strong>Figure 5.</strong> N–S vertical sections with Qₛ and current flow streamlines. The X = 2.09 km section reveals a strikingly coherent northward-directed flow in the upper 200 m above the water table, transitioning to complex multi-directional flow at depth — consistent with a shallow unconfined recharge system feeding a deeper confined hydrothermal reservoir. The central sections (X = 3.19–4.69 km) display vertically ascending streamlines aligned with inferred upflow zones, while the eastern sections show lateral groundwater outflow consistent with topographic drainage toward lower elevations.</p>
+      </div>
+
+      <!-- FIG 6: 3D INTERACTIVE -->
+      <div class="proof-item">
+        <div class="proof-item-label">Figure 6 · 3D Interactive Fence Plot — Inverted Qₛ Model</div>
+        <a href="SP_3D_inversion_trimmed.html" target="_blank" class="interactive-link">
+          <div class="interactive-link-icon">🧊</div>
+          <div class="interactive-link-text">
+            <strong>Open 3D Interactive Inversion Model</strong>
+            <span>Rotatable E–W / N–S fence plot of Qₛ source current density — full resolution volumetric model. Requires WebGL-enabled browser. Opens in a new tab.</span>
+          </div>
+          <div class="interactive-link-arrow">↗</div>
+        </a>
+        <p class="proof-caption" style="margin-top: 1rem;"><strong>Figure 6.</strong> Interactive 3D fence-plot visualization of the recovered Qₛ model displayed on intersecting E–W and N–S vertical sections. The volumetric rendering allows full 3D rotation, zoom, and section navigation — enabling geologists, geophysicists, and project managers to explore the inversion result in their browser without specialist software. This deliverable format is standard in all SPExplorer inversion outputs.</p>
+      </div>
+
+    </div><!-- /proof-grid -->
+
+    <!-- DISCUSSION CARDS -->
+    <div style="margin-top: 3rem;">
+      <div class="section-label" style="margin-bottom: 1rem;">// Result & Discussion Summary</div>
+      <div class="discussion-grid">
+        <div class="discussion-card">
+          <h4>Hydrothermal Upflow Identification</h4>
+          <p>The 3D inversion unambiguously identifies two principal upflow centres beneath the Tongariro edifice, visible as vertically continuous negative Qₛ columns flanked by positive electrokinetic halos in both E–W and N–S section suites. These are consistent with published geochemical and temperature data from nearby fumarole fields.</p>
+        </div>
+        <div class="discussion-card">
+          <h4>Electrokinetic Flow Architecture</h4>
+          <p>Current flow streamlines reveal a three-tier flow architecture: shallow recharge from the high-elevation flanks, mid-crustal lateral transport along permeable horizons, and deep hydrothermal return flow. This architecture was previously inferred from geochemistry alone — SPExplorer makes it geometrically explicit.</p>
+        </div>
+        <div class="discussion-card">
+          <h4>Geobattery Signal at Depth</h4>
+          <p>The prominent deep negative Qₛ zone at X = 2.09 km, depth 400–700 m, is interpreted as a reduction-dominated electrochemical cell consistent with a hydrothermal geobattery. The spatial extent and depth of this feature provide new constraints on the geometry of the deep hydrothermal reservoir.</p>
+        </div>
+        <div class="discussion-card">
+          <h4>Inversion Quality Metrics</h4>
+          <p>The final RMS misfit of 31.4 mV against a survey data range exceeding ±2,500 mV demonstrates exceptional model fit. The symmetric, spectrally white residual map confirms that the inversion has not over-fitted noise — a critical requirement for geologically meaningful interpretation of the recovered Qₛ distribution.</p>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<hr class="sep">
+
+<!-- ── FEATURES ── -->
+<section id="features" style="background: linear-gradient(180deg, transparent, rgba(4,13,26,0.9), transparent);">
+  <div class="section-inner">
+    <div class="section-label">// 05 — Platform Capabilities</div>
+    <h2 class="section-title">What the SPExplorer <span class="accent2">Engine Delivers</span></h2>
+    <p class="section-desc">A full-stack SP platform from raw field data to drill-ready interpretation — with the numerical rigour of a university inversion group and the usability of a commercial product.</p>
+
+    <div class="features-tabs">
+      <button class="tab-btn active">Processing</button>
+      <button class="tab-btn">Modelling</button>
+      <button class="tab-btn">Inversion</button>
+      <button class="tab-btn">Visualisation</button>
+      <button class="tab-btn">Integration</button>
+    </div>
+
+    <div class="features-grid">
+      <div class="feature-card">
+        <div class="feature-icon">📡</div>
+        <h4>Field Data QC & Processing</h4>
+        <ul>
+          <li>Multi-base reference correction</li>
+          <li>Drift and diurnal compensation</li>
+          <li>Electrode noise flagging and filtering</li>
+          <li>Topographic data import (DEM/LiDAR)</li>
+          <li>SP grid interpolation and levelling</li>
+          <li>Survey statistics and error reporting</li>
+        </ul>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">🧮</div>
+        <h4>3D Forward Modelling</h4>
+        <ul>
+          <li>Green's function forward modelling engine</li>
+          <li>Topography-aware active cell mesh</li>
+          <li>Variable conductivity background</li>
+          <li>Arbitrary source current distributions</li>
+          <li>Fast dipole and monopole kernels</li>
+          <li>Synthetic data generation for survey design</li>
+        </ul>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">⚙️</div>
+        <h4>3D Inversion Engine</h4>
+        <ul>
+          <li>Tikhonov regularisation with β-cooling</li>
+          <li>Depth weighting (Li & Oldenburg, 1998)</li>
+          <li>SymLogNorm source current density recovery</li>
+          <li>Sparse matrix conjugate gradient solvers</li>
+          <li>Mesh up to 10⁶+ cells supported</li>
+          <li>Convergence monitoring and diagnostics</li>
+        </ul>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">🖥️</div>
+        <h4>Visualisation & Reporting</h4>
+        <ul>
+          <li>Interactive 3D fence-plot (WebGL, HTML export)</li>
+          <li>Multi-section E–W and N–S slice views</li>
+          <li>Current flow streamline computation</li>
+          <li>Publication-quality figure export (PDF, SVG, PNG)</li>
+          <li>Animated section navigation</li>
+          <li>Summary dashboard generation</li>
+        </ul>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">🔗</div>
+        <h4>Integration & Export</h4>
+        <ul>
+          <li>Leapfrog Geo compatible grid export</li>
+          <li>Geosoft .grd / .xyz export</li>
+          <li>ESRI GIS shapefile and raster output</li>
+          <li>VTK volumetric model export</li>
+          <li>CSV / HDF5 raw model output</li>
+          <li>Python API for batch scripting (enterprise)</li>
+        </ul>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">🛡️</div>
+        <h4>License & Deployment</h4>
+        <ul>
+          <li>Annual software license — no source code transfer</li>
+          <li>Project-scoped pilot deployment option</li>
+          <li>Windows / Linux platform support</li>
+          <li>Offline-capable field deployment</li>
+          <li>Automatic update delivery</li>
+          <li>Dedicated method scientist support (enterprise)</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<hr class="sep">
+
+<!-- ── SCIENCE ── -->
+<section id="science">
+  <div class="section-inner">
+    <div class="section-label">// 06 — Theoretical Foundation</div>
+    <h2 class="section-title">The Science Behind <span class="accent">SPExplorer</span></h2>
+    <p class="section-desc">Our inversion engine is grounded in the governing physics of natural electric field generation. This is not a black-box product — every algorithm is traceable to peer-reviewed methodology.</p>
+
+    <div style="margin-top: 2.5rem; display: grid; grid-template-columns: 1fr 1fr; gap: 3rem; align-items: start;">
+      <div>
+        <div class="paper-subsection-title" style="margin-top: 0;">Governing Physics</div>
+        <div class="paper-eq">∇ · J = 0 &nbsp;&nbsp; (current conservation)</div>
+        <div class="paper-eq">J = −σ∇ϕ + Jₛ &nbsp;&nbsp; (total current density)</div>
+        <div class="paper-eq">∇ · (σ∇ϕ) = ∇ · Jₛ &nbsp;&nbsp; (SP forward problem)</div>
+        <p style="font-size: 0.87rem; color: var(--text-dim); line-height: 1.7; margin-top: 1rem;">The 3D inversion recovers the volumetric distribution of <strong style="color: var(--cyan2);">Qₛ = ∇ · Jₛ</strong> — the source current density divergence — responsible for observed surface potentials. Positive Qₛ represents current sources; negative Qₛ represents current sinks (e.g. oxidation zones in sulphide geobattery models).</p>
+
+        <div class="paper-subsection-title">Source Mechanisms</div>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.8rem; margin-top: 0.5rem;">
+          <div class="info-card"><h4>Electrokinetic</h4><p>Streaming potentials from fluid flow through porous media. Dominant in geothermal and groundwater systems.</p></div>
+          <div class="info-card"><h4>Electrochemical</h4><p>Redox potential gradients across sulphide ore bodies. Generates the classic negative SP anomaly above oxidising sulphides.</p></div>
+          <div class="info-card"><h4>Thermoelectric</h4><p>Temperature gradients in geothermal environments drive thermocouple-type SP signals along mineralised conduits.</p></div>
+          <div class="info-card"><h4>Diffusion Potential</h4><p>Ion concentration gradients produce diffusion SP signals in contamination plumes and acid mine drainage zones.</p></div>
+        </div>
+      </div>
+
+      <div>
+        <div class="paper-subsection-title" style="margin-top: 0;">Inversion Methodology</div>
+        <table class="paper-table">
+          <thead>
+            <tr>
+              <th>Component</th>
+              <th>Implementation</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td>Forward operator</td><td>Green's function, point-source kernel</td></tr>
+            <tr><td>Mesh type</td><td>Structured rectilinear, topography-trimmed active cells</td></tr>
+            <tr><td>Depth weighting</td><td>Li & Oldenburg (1998) depth-decay compensation</td></tr>
+            <tr><td>Regularisation</td><td>Tikhonov L2 smoothness, β-cooling schedule</td></tr>
+            <tr><td>Linear solver</td><td>LSQR / Conjugate gradient, sparse matrices</td></tr>
+            <tr><td>Data misfit</td><td>L2 norm, RMS convergence criterion</td></tr>
+            <tr><td>Output</td><td>Qₛ (A·m⁻³), SymLogNorm scaled, directional current vectors</td></tr>
+          </tbody>
+        </table>
+
+        <div class="paper-subsection-title">Multi-Method Integration</div>
+        <p style="font-size: 0.87rem; color: var(--text-dim); line-height: 1.7; margin-bottom: 0.8rem;">SPExplorer results are designed to integrate with complementary geophysical datasets:</p>
+        <div style="display: flex; flex-direction: column; gap: 0.5rem;">
+          <div class="info-card" style="padding: 0.8rem 1rem;"><h4 style="font-size: 0.9rem; margin-bottom: 0.15rem;">ERT / Resistivity</h4><p style="font-size: 0.8rem;">Conductivity constraints for forward modelling background</p></div>
+          <div class="info-card" style="padding: 0.8rem 1rem;"><h4 style="font-size: 0.9rem; margin-bottom: 0.15rem;">Induced Polarisation (IP)</h4><p style="font-size: 0.8rem;">Identifies chargeable sulphides coincident with SP anomalies</p></div>
+          <div class="info-card" style="padding: 0.8rem 1rem;"><h4 style="font-size: 0.9rem; margin-bottom: 0.15rem;">Airborne EM</h4><p style="font-size: 0.8rem;">Conductive pathways correlated with SP upflow zones</p></div>
+          <div class="info-card" style="padding: 0.8rem 1rem;"><h4 style="font-size: 0.9rem; margin-bottom: 0.15rem;">Magnetics & Gravity</h4><p style="font-size: 0.8rem;">Structural context for SP source body geometry</p></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<hr class="sep">
+
+<!-- ── PILOT DEPLOYMENT ── -->
+<section id="pilot">
+  <div class="section-inner">
+    <div class="section-label">// 07 — Project-Wise Pilot Deployment</div>
+    <h2 class="section-title">Pilot <span class="accent">Licensing Program</span></h2>
+    <p class="section-desc">SPExplorer is available for project-scoped pilot deployment — a focused annual license for a specific project, with the full inversion and visualisation capability of the platform. Pricing is determined by project scope, data volume, and support requirements. No proprietary source code is transferred under any license tier.</p>
+
+    <div class="pilot-grid">
+
+      <div class="pilot-card">
+        <div class="pilot-card-badge">// PILOT TIER 1</div>
+        <h3>Single-Project Pilot</h3>
+        <div class="pilot-scope">One Survey Area · 1–2 Users · 12-Month License</div>
+        <p>Ideal for exploration companies evaluating SPExplorer on a specific target area before committing to a full corporate license. Full inversion functionality with standard support.</p>
+        <ul class="pilot-features">
+          <li>Full 3D inversion engine access</li>
+          <li>Up to 500,000 model cells</li>
+          <li>Interactive 3D visualisation suite</li>
+          <li>Topography-aware mesh construction</li>
+          <li>Current flow streamline computation</li>
+          <li>Publication-quality figure export</li>
+          <li>Email + video support (48 hr response)</li>
+          <li>Onboarding training session (half-day)</li>
+        </ul>
+        <div class="pilot-price-note">// PRICING: Contact sales — scope-dependent</div>
+        <a href="#contact" class="pilot-cta">Enquire About Pilot</a>
+      </div>
+
+      <div class="pilot-card" style="border-color: var(--gold);">
+        <div class="pilot-card-badge" style="color: var(--gold);">// PILOT TIER 2 · RECOMMENDED</div>
+        <h3>Multi-Target Pilot</h3>
+        <div class="pilot-scope">2–3 Survey Areas · Up to 4 Users · 12-Month License</div>
+        <p>For active exploration programs running multiple SP surveys concurrently or sequentially. Includes priority support and a dedicated method review call to maximise inversion quality.</p>
+        <ul class="pilot-features">
+          <li>Everything in Single-Project Pilot</li>
+          <li>Up to 1,000,000 model cells per project</li>
+          <li>3 concurrent project deployments</li>
+          <li>Priority support (24 hr response)</li>
+          <li>Quarterly method review call</li>
+          <li>GIS & Leapfrog compatible export formats</li>
+          <li>Full training workshop (1 day, remote)</li>
+          <li>Interpretation consultation (2 sessions)</li>
+        </ul>
+        <div class="pilot-price-note">// PRICING: Contact sales — scope-dependent</div>
+        <a href="#contact" class="pilot-cta" style="border-color: var(--gold); color: var(--gold);">Enquire About Pilot</a>
+      </div>
+
+      <div class="pilot-card">
+        <div class="pilot-card-badge">// PILOT TIER 3</div>
+        <h3>Research & Survey Organisation</h3>
+        <div class="pilot-scope">Institutional · Multi-User · 12-Month License</div>
+        <p>Designed for government geological surveys, university research groups, and consulting firms requiring multi-user access, reproducible inversion workflows, and publication-support collaboration.</p>
+        <ul class="pilot-features">
+          <li>Everything in Multi-Target Pilot</li>
+          <li>Unlimited model cell size</li>
+          <li>Up to 8 named users</li>
+          <li>Dedicated method scientist contact</li>
+          <li>Python API access for batch scripting</li>
+          <li>Custom export format integration</li>
+          <li>Co-authorship support on publications</li>
+          <li>Early access to new inversion modules</li>
+        </ul>
+        <div class="pilot-price-note">// PRICING: Contact sales — scope-dependent</div>
+        <a href="#contact" class="pilot-cta">Enquire About Pilot</a>
+      </div>
+
+    </div>
+
+    <div class="pilot-note-box">
+      <div class="pilot-note-icon">🔒</div>
+      <div>
+        <h4>Intellectual Property & License Conditions</h4>
+        <p>All SPExplorer Pilot licenses deliver a fully operational working application. Proprietary inversion algorithms, numerical solvers, and source code remain the exclusive intellectual property of SPExplorer Geoscience and are not included in any license. Annual license fees are determined by project scope, data volume, geographic region, and support tier. A non-disclosure agreement is required prior to licensing discussions. Contact our sales team to initiate a scoping conversation.</p>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<hr class="sep">
+
+<!-- ── TECHNICAL PAPER ── -->
+<section id="science-paper" class="paper-section">
+  <div class="paper-inner">
+
+    <div class="paper-header">
+      <div class="paper-journal-tag">// Technical Reference — SPExplorer Geoscience</div>
+      <h1 class="paper-title">3D Self-Potential Data Inversion: Theory, Methodology, and Applications in Mineral Exploration, Geothermal Systems, and Subsurface Characterization</h1>
+      <p class="paper-authors">SPExplorer Geoscience Technical Team · 2024</p>
+      <div class="paper-keywords">
+        <span class="kw-tag">Self-Potential</span>
+        <span class="kw-tag">SP Inversion</span>
+        <span class="kw-tag">Source Current Density</span>
+        <span class="kw-tag">Sulphide Exploration</span>
+        <span class="kw-tag">Geothermal Systems</span>
+        <span class="kw-tag">Electrokinetics</span>
+        <span class="kw-tag">Geophysical Inversion</span>
+        <span class="kw-tag">Mineral Exploration</span>
+        <span class="kw-tag">Tongariro Volcanic Centre</span>
+      </div>
+    </div>
+
+    <!-- ABSTRACT -->
+    <div class="paper-section-title">Abstract</div>
+    <p class="paper-text">Self-Potential (SP) is one of the oldest geophysical methods, yet recent advances in computational power and inversion algorithms have transformed SP from a qualitative anomaly-mapping technique into a quantitative three-dimensional imaging tool. SP anomalies arise from natural electric fields generated by electrochemical, electrokinetic, thermoelectric, and redox processes occurring within the subsurface. Modern 3D inversion enables estimation of the spatial distribution of source current density responsible for observed surface potentials, providing valuable information regarding fluid flow, mineralization, and subsurface electrochemical activity.</p>
+    <p class="paper-text">This paper presents the theoretical framework, numerical implementation, and practical applications of 3D SP inversion. The inversion methodology employs Green's function forward modelling, topography-aware active cell selection, depth weighting, smoothness-constrained regularization, and large-scale iterative solvers. A field validation case study from the Tongariro Volcanic Centre, New Zealand, demonstrates recovery of volumetric source current density on a 335,104-cell model with an achieved RMS misfit of 31.4 mV, resolving hydrothermal upflow conduits and electrokinetic flow pathways to depths exceeding 800 m below surface.</p>
+
+    <!-- INTRODUCTION -->
+    <div class="paper-section-title">1. Introduction</div>
+    <p class="paper-text">The Self-Potential (SP) method measures naturally occurring electrical potential differences at the Earth's surface. Unlike induced polarization (IP), resistivity, or electromagnetic methods, SP requires no artificial current injection, making it one of the lowest-cost geophysical techniques available. Historically, SP surveys were primarily used to locate massive sulphide deposits through detection of oxidation-reduction (redox) processes associated with conductive ore bodies.</p>
+    <p class="paper-text">Advances in hydrogeophysics and electrokinetic theory have demonstrated that SP anomalies arise from a broader range of subsurface processes:</p>
+    <ul class="paper-list">
+      <li>Groundwater flow (streaming potential / electrokinetic effect)</li>
+      <li>Geothermal and hydrothermal circulation</li>
+      <li>Hydrothermal alteration mineralogy</li>
+      <li>Contaminant plume migration (diffusion potential)</li>
+      <li>Corrosion processes in infrastructure</li>
+      <li>Fracture-controlled fluid movement</li>
+    </ul>
+    <p class="paper-text">The principal limitation of traditional SP interpretation has been its qualitative nature — coloured anomaly maps that admit multiple geological interpretations. Modern 3D inversion methods overcome this limitation by reconstructing the subsurface distribution of source current density responsible for observed surface potentials, converting SP data into a quantitative, geologically interpretable three-dimensional model.</p>
+
+    <!-- PHYSICAL BASIS -->
+    <div class="paper-section-title">2. Physical Basis of Self-Potential Signals</div>
+
+    <div class="paper-subsection-title">2.1 Governing Equations</div>
+    <p class="paper-text">Under quasi-static conditions, electrical current conservation requires the total current density to be divergence-free:</p>
+    <div class="paper-eq">∇ · J = 0</div>
+    <p class="paper-text">Current density is decomposed into a passive ohmic component and an active source component:</p>
+    <div class="paper-eq">J = −σ∇ϕ + Jₛ</div>
+    <p class="paper-text">where σ is electrical conductivity (S·m⁻¹), ϕ is electric potential (V), and Jₛ is the source current density (A·m⁻²). Substituting into the conservation equation yields the SP forward problem:</p>
+    <div class="paper-eq">∇ · (σ∇ϕ) = ∇ · Jₛ = Qₛ</div>
+    <p class="paper-text">The scalar quantity <strong>Qₛ = ∇ · Jₛ</strong> (A·m⁻³) is the source current density divergence recovered by inversion — positive values represent current sources and negative values represent current sinks.</p>
+
+    <div class="paper-subsection-title">2.2 The Sulphide Geobattery Model</div>
+    <div class="paper-highlight">
+      <p>A critical and often misunderstood point: the measured surface SP anomaly above a buried sulphide body is typically <strong>negative</strong> (−50 to −1,000 mV), while the oxidation zone (upper ore body) behaves electrochemically as an anode — releasing electrons that travel through the conductive sulphide toward a deeper reduction zone. The recovered source current density Qₛ in the oxidation zone is correspondingly negative (current sink), consistent with anodic electron release.</p>
+    </div>
+
+    <table class="paper-table">
+      <thead>
+        <tr>
+          <th>Zone</th>
+          <th>Process</th>
+          <th>Electrode Role</th>
+          <th>Measured SP</th>
+          <th>Recovered Qₛ</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td>Upper (near water table)</td><td>Oxidation: FeS₂ + O₂ + H₂O → Fe²⁺ + SO₄²⁻</td><td>Anode</td><td>Negative (−50 to −1000 mV)</td><td>Negative (sink)</td></tr>
+        <tr><td>Lower (deep ore body)</td><td>Reduction: electron acceptance</td><td>Cathode</td><td>Positive (relative)</td><td>Positive (source)</td></tr>
+      </tbody>
+    </table>
+
+    <!-- INVERSION METHODOLOGY -->
+    <div class="paper-section-title">3. 3D Inversion Methodology</div>
+
+    <div class="paper-subsection-title">3.1 Forward Modelling</div>
+    <p class="paper-text">The forward problem is solved using the Green's function approach. For a half-space with uniform or layered conductivity, the surface potential due to a volumetric source distribution Qₛ(r') is:</p>
+    <div class="paper-eq">ϕ(r) = ∫∫∫_V G(r, r') · Qₛ(r') dV'</div>
+    <p class="paper-text">where G(r, r') is the Green's function for the geometry. In practice, the volume integral is discretised over a structured rectilinear mesh of Nm cells, yielding the linear forward system:</p>
+    <div class="paper-eq">d = G · m</div>
+    <p class="paper-text">where d is the vector of Nd observed SP data (mV), G is the Nd × Nm sensitivity matrix, and m is the Nm-vector of Qₛ values to be recovered.</p>
+
+    <div class="paper-subsection-title">3.2 Regularised Inversion</div>
+    <p class="paper-text">The inverse problem is underdetermined (Nm >> Nd) and requires regularisation. SPExplorer implements Tikhonov regularisation with a smoothness penalty:</p>
+    <div class="paper-eq">Φ(m) = ‖Wd(Gm − d)‖² + β ‖Wm · m‖²</div>
+    <p class="paper-text">where Wd is a data weighting matrix (typically diagonal, with entries proportional to the inverse of estimated data uncertainty), Wm is a model regularisation operator (incorporating depth weighting and spatial smoothness), and β is the regularisation parameter controlled by a cooling schedule. The solution is obtained by iteratively minimising Φ(m) using a conjugate gradient method applied to the normal equations.</p>
+
+    <div class="paper-subsection-title">3.3 Depth Weighting</div>
+    <p class="paper-text">Without depth weighting, the inversion places sources preferentially at shallow depth due to the 1/r decay of the Green's function kernel. Following Li & Oldenburg (1998), a depth weighting function w(z) is applied to counteract this tendency:</p>
+    <div class="paper-eq">w(z) = (z + z₀)^(−β/2) &nbsp;&nbsp; where β ≈ 2 for SP sources</div>
+    <p class="paper-text">This ensures that model cells at depth receive equitable sensitivity weighting relative to shallow cells, permitting recovery of deep source structures that would otherwise be suppressed.</p>
+
+    <!-- RESULTS: TONGARIRO -->
+    <div class="paper-section-title">4. Results & Discussion: Tongariro Volcanic Centre</div>
+
+    <div class="paper-subsection-title">4.1 Survey Overview and Inversion Setup</div>
+    <p class="paper-text">The SP dataset from the Tongariro Volcanic Centre (TVC), North Island, New Zealand, was acquired across a 56 km² survey area with more than 4,700 station measurements. The TVC hosts an active hydrothermal system with fumarole fields, acid crater lakes, and documented geothermal fluid upflow aligned with volcanic vent structures. The SP anomaly pattern is strongly controlled by electrokinetic and thermoelectric sources associated with active hydrothermal circulation.</p>
+    <p class="paper-text">The 3D inversion was performed on a 77 × 68 × 64 cell mesh (335,104 total cells, 77 × 68 × 64 = 335,104 active after topographic trimming). The cell size was 100 m horizontally and variable vertically, with 10 padding cells applied at all boundaries to minimise edge effects. The survey mean elevation is 1,569 m asl; the maximum model elevation is 2,265 m asl (summit) and the minimum is 747 m asl (peripheral survey boundary).</p>
+
+    <div class="paper-subsection-title">4.2 Inversion Convergence</div>
+    <p class="paper-text">The inversion converged to a final RMS misfit of <strong>31.4 mV</strong> against a peak-to-peak data range of approximately 4,000 mV (−1,500 to +2,500 mV). The SymLogNorm source model reference (ℓ_model) was set to 3.72 × 10⁻⁸ A·m⁻³, providing symmetric positive and negative Qₛ resolution across six orders of magnitude. The residual map is spatially uncorrelated and spectrally white, confirming that the model has been fitted to the signal rather than to noise.</p>
+
+    <div class="paper-subsection-title">4.3 E–W Section Interpretation</div>
+    <p class="paper-text">The six E–W vertical sections (Y = 0.79 to 6.19 km N) reveal a strongly heterogeneous Qₛ distribution in the upper 400 m, transitioning to a simpler, broadly positive background at depths of 500–800 m below surface. The northern sections (Y = 0.79–2.79 km) are dominated by sub-vertical negative Qₛ columns to 300–400 m depth, flanked by positive halos — a pattern consistent with focused hydrothermal upflow through permeable conduits driving electrokinetic streaming potentials. The central and southern sections (Y = 4.19–6.19 km) show a westward-deepening positive Qₛ body likely associated with the lateral discharge limb of the hydrothermal convection system.</p>
+
+    <div class="paper-subsection-title">4.4 N–S Section Interpretation</div>
+    <p class="paper-text">The N–S sections (X = 0.89 to 6.99 km E) provide orthogonal constraints on the 3D Qₛ geometry. The section at X = 2.09 km contains the most diagnostic feature of the entire dataset: a strongly negative Qₛ anomaly (blue) centred at approximately 500 m depth and 2–4 km northing, reaching amplitudes of −3.7 × 10⁻³ A·m⁻³. This feature is flanked by positive Qₛ above and to the north, forming a coherent electrochemical cell geometry consistent with either a reducing hydrothermal fluid reservoir or a sulphide-bearing mineralisation system at depth. Discrimination between these interpretations would require integration with coincident IP or EM data.</p>
+
+    <div class="paper-subsection-title">4.5 Current Flow Analysis</div>
+    <p class="paper-text">Current flow streamlines computed from the recovered Qₛ vector field reveal a three-tier flow architecture consistent with published conceptual models of volcanic hydrothermal systems:</p>
+    <ul class="paper-list">
+      <li><strong>Shallow recharge tier (0–200 m):</strong> Lateral inward flow from high-elevation flanks toward the volcanic edifice axis, driven by topographic hydraulic head and consistent with meteoric recharge</li>
+      <li><strong>Mid-crustal transport tier (200–500 m):</strong> Sub-horizontal streamlines along permeable horizons, likely fault- or stratigraphy-controlled, routing fluid toward upflow conduits</li>
+      <li><strong>Deep return flow tier (500–800 m):</strong> Complex multi-directional flow associated with deep hydrothermal convection and possibly magmatic volatile input</li>
+    </ul>
+    <p class="paper-text">This three-tier architecture, recovered non-parametrically from the SP inversion, is consistent with the geochemical zonation observed at TVC fumarole fields and provides the first spatially continuous representation of the hydrothermal plumbing system geometry.</p>
+
+    <!-- APPLICATIONS -->
+    <div class="paper-section-title">5. Broader Applications</div>
+
+    <div class="paper-subsection-title">5.1 Sulphide Mineral Exploration</div>
+    <p class="paper-text">The geobattery model predicts negative SP anomalies (and negative Qₛ in the upper ore body) above oxidising massive sulphide systems. 3D SP inversion provides quantitative depth estimates and source body geometry, substantially improving drill target ranking compared with conventional anomaly peak picking. Applicable deposit types include VMS, SEDEX, magmatic nickel sulphides, and orogenic gold systems with sulphide alteration halos.</p>
+
+    <div class="paper-subsection-title">5.2 Geothermal Exploration</div>
+    <p class="paper-text">Thermoelectric and electrokinetic SP signals in geothermal environments allow imaging of upflow conduits, permeable fracture zones, and reservoir boundaries. 3D inversion moves beyond traditional SP low = upflow / SP high = recharge interpretive rules, providing depth-resolved flow geometry applicable to resource assessment and well siting decisions.</p>
+
+    <div class="paper-subsection-title">5.3 Groundwater and Environmental Applications</div>
+    <p class="paper-text">Streaming potentials generated by groundwater flow provide continuous information on recharge zones, discharge zones, aquifer connectivity, and preferential flow pathways. Time-lapse 3D SP inversion can monitor dam seepage, landfill leachate migration, CO₂ sequestration fluid migration, and acid mine drainage evolution without borehole intervention.</p>
+
+    <!-- CONCLUSIONS -->
+    <div class="paper-section-title">6. Conclusions</div>
+    <p class="paper-text">Three-dimensional Self-Potential inversion transforms a qualitative geophysical technique into a quantitative subsurface imaging tool with applications spanning mineral exploration, geothermal resource assessment, hydrogeology, and environmental monitoring. The SPExplorer inversion engine — validated on the Tongariro Volcanic Centre dataset — demonstrates that volumetric source current density models with more than 300,000 cells can be recovered at field-quality RMS misfits, resolving complex hydrothermal flow architectures to depths exceeding 800 m below surface.</p>
+    <p class="paper-text">The recovered Qₛ models, combined with current flow streamline analysis, provide genuinely new subsurface information not available from any other passive geophysical technique at equivalent survey cost. Integration with complementary methods (ERT, IP, EM, magnetics) further constrains geological interpretation and reduces drilling uncertainty.</p>
+
+  </div>
+</section>
+
+<hr class="sep">
+
+<!-- ── CONTACT ── -->
+<section id="contact">
+  <div class="section-inner">
+    <div class="section-label">// 08 — Sales & Licensing</div>
+    <h2 class="section-title">Contact Our <span class="accent">Sales Team</span></h2>
+
+    <div class="contact-grid">
+      <div class="contact-info">
+        <h3>Let's Discuss Your Project</h3>
+        <p>Whether you're planning a field campaign, evaluating SPExplorer for a specific target, or seeking a pilot license for an active exploration program — our sales team is composed of practising geophysicists who understand your problem.</p>
+        <p>We respond to all qualified enquiries within one business day. For urgent project support, please indicate the campaign start date in your message.</p>
+
+        <div class="contact-points">What to include:</div>
+        <ul class="contact-point-list">
+          <li>Target type and project location</li>
+          <li>Approximate number of SP measurement stations</li>
+          <li>Whether you need processing, modelling, inversion, or all three</li>
+          <li>Your preferred pilot tier and project timeline</li>
+          <li>Any coincident geophysical datasets (ERT, EM, IP, magnetics)</li>
+        </ul>
+
+        <div style="margin-top: 2rem;">
+          <div class="contact-detail">
+            <div class="contact-detail-item">
+              <span>📧</span>
+              <span>Sales: <strong>sales@spexplorer.com</strong></span>
+            </div>
+            <div class="contact-detail-item">
+              <span>🔬</span>
+              <span>Technical: <strong>science@spexplorer.com</strong></span>
+            </div>
+            <div class="contact-detail-item">
+              <span>📋</span>
+              <span>NDA & Licensing: <strong>legal@spexplorer.com</strong></span>
+            </div>
+          </div>
+        </div>
+
+        <div style="margin-top: 1.5rem; border: 1px solid var(--border); background: rgba(0,212,232,0.03); padding: 1.2rem 1.4rem;">
+          <div style="font-family: 'Share Tech Mono', monospace; font-size: 0.6rem; color: var(--cyan); letter-spacing: 0.2em; margin-bottom: 0.5rem;">// NOTE ON PRICING</div>
+          <p style="font-size: 0.83rem; color: var(--text-dim); line-height: 1.65;">Pilot license pricing is determined project-by-project based on survey area, data volume, model complexity, and support requirements. Pricing is not published publicly. Please contact sales to initiate a scoping discussion under NDA.</p>
+        </div>
+      </div>
+
+      <form class="contact-form" action="https://formspree.io/f/xpqnevle" method="POST">
+        <div class="form-row">
+          <div class="form-group">
+            <label for="name">Full Name *</label>
+            <input type="text" id="name" name="name" required placeholder="Dr. Jane Smith">
+          </div>
+          <div class="form-group">
+            <label for="email">Email Address *</label>
+            <input type="email" id="email" name="email" required placeholder="jane@miningco.com">
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label for="company">Company / Institution *</label>
+            <input type="text" id="company" name="company" required placeholder="Acme Mining Pty Ltd">
+          </div>
+          <div class="form-group">
+            <label for="role">Role / Title</label>
+            <input type="text" id="role" name="role" placeholder="Chief Geophysicist">
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label for="project_type">Project Type *</label>
+            <select id="project_type" name="project_type" required>
+              <option value="">Select project type…</option>
+              <option>Mineral Exploration — Sulphides (VMS / SEDEX / Ni)</option>
+              <option>Mineral Exploration — Gold / Base Metals</option>
+              <option>Geothermal Exploration</option>
+              <option>Groundwater / Hydrogeology</option>
+              <option>Environmental Monitoring</option>
+              <option>Engineering Geophysics</option>
+              <option>Academic / Research</option>
+              <option>Government Geological Survey</option>
+              <option>Other</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="pilot_tier">Pilot Tier Interest</label>
+            <select id="pilot_tier" name="pilot_tier">
+              <option value="">Select tier…</option>
+              <option>Tier 1 — Single Project Pilot</option>
+              <option>Tier 2 — Multi-Target Pilot</option>
+              <option>Tier 3 — Research / Survey Organisation</option>
+              <option>Not sure — please advise</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="message">Project Description *</label>
+          <textarea id="message" name="message" rows="5" required placeholder="Briefly describe your survey area, number of SP stations, target type, and any existing complementary datasets (ERT, EM, IP, etc.)..."></textarea>
+        </div>
+        <input type="hidden" name="_replyto" value="sales@spexplorer.com">
+        <input type="hidden" name="_subject" value="SPExplorer Sales Enquiry">
+        <button type="submit" class="form-submit">Send to Sales Team →</button>
+      </form>
+    </div>
+  </div>
+</section>
+
+<hr class="sep">
+
+<!-- ── FOOTER ── -->
+<footer>
+  <div class="footer-inner">
+    <div class="footer-logo">
+      <img src="logo.png" alt="SPExplorer Geoscience">
+    </div>
+    <p class="footer-text">Turning <em>Self-Potential Data</em> Into Discovery</p>
+    <div class="footer-links">
+      <a href="#why">Why SPExplorer</a>
+      <a href="#casestudy">Case Study</a>
+      <a href="#features">Features</a>
+      <a href="#science">Technology</a>
+      <a href="#pilot">Pilot Program</a>
+      <a href="#contact">Contact Sales</a>
+    </div>
+    <p class="footer-copy">© 2025 SPExplorer Geoscience · All rights reserved · Proprietary technology — Annual license only</p>
+  </div>
+</footer>
+
+<script>
+// Nav active link on scroll
+const sections = document.querySelectorAll('section[id]');
+const navLinks = document.querySelectorAll('.nav-links a');
+
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      const id = entry.target.id;
+      navLinks.forEach(a => {
+        a.style.color = a.getAttribute('href') === `#${id}` ? 'var(--cyan2)' : '';
+      });
+    }
+  });
+}, { threshold: 0.25 });
+
+sections.forEach(s => observer.observe(s));
+
+// Fade-in on scroll
+const fadeEls = document.querySelectorAll('.app-card, .feature-card, .premium-card, .pilot-card, .info-card, .stat-box, .discussion-card');
+const fadeObs = new IntersectionObserver((entries) => {
+  entries.forEach((entry) => {
+    if (entry.isIntersecting) {
+      const idx = Array.from(fadeEls).indexOf(entry.target) % 6;
+      entry.target.style.opacity = '0';
+      entry.target.style.transform = 'translateY(18px)';
+      entry.target.style.transition = 'opacity 0.55s ease, transform 0.55s ease';
+      setTimeout(() => {
+        entry.target.style.opacity = '';
+        entry.target.style.transform = '';
+      }, idx * 90);
+      fadeObs.unobserve(entry.target);
+    }
+  });
+}, { threshold: 0.08 });
+
+fadeEls.forEach(el => {
+  el.style.opacity = '0';
+  fadeObs.observe(el);
+});
+
+// Tab functionality
+const tabBtns = document.querySelectorAll('.tab-btn');
+tabBtns.forEach(btn => {
+  btn.addEventListener('click', () => {
+    tabBtns.forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+  });
+});
+</script>
+
+</body>
+</html>
